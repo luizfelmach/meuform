@@ -1,9 +1,8 @@
-use anyhow::Result;
-
 use crate::core::{
     customer::CustomerId,
     form::{Form, FormId},
 };
+use anyhow::Result;
 
 pub struct Input {
     pub customer_id: CustomerId,

@@ -1,11 +1,11 @@
-use crate::core::form::Form;
+use crate::core::{customer::CustomerId, form::Form};
 use anyhow::Result;
 
 pub struct Input {
+    pub customer_id: CustomerId,
     pub title: String,
     pub slug: String,
     pub description: Option<String>,
-    pub owner_id: String,
 }
 
 pub struct Output {

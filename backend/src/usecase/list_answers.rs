@@ -1,11 +1,5 @@
-use crate::core::{
-    answer::{Answer, AnswerType},
-    customer::CustomerId,
-    form::FormId,
-    graph::{Graph, NodeId},
-};
+use crate::core::{answer::Answer, customer::CustomerId, form::FormId};
 use anyhow::Result;
-use std::collections::HashMap;
 
 pub struct Input {
     pub customer_id: CustomerId,
