@@ -1,4 +1,4 @@
-use crate::core::graph::{Edge, Graph, GraphId, Node, NodeId};
+use crate::core::{Edge, Graph, GraphId, Node, NodeId};
 use anyhow::Result;
 use std::collections::HashMap;
 

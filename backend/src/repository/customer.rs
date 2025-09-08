@@ -1,4 +1,4 @@
-use crate::core::customer::Customer;
+use crate::core::Customer;
 use anyhow::Result;
 
 pub struct CreateCustomer {

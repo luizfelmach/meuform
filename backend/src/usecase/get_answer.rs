@@ -1,9 +1,4 @@
-use crate::core::{
-    answer::{Answer, AnswerId},
-    customer::CustomerId,
-    form::FormId,
-    graph::Graph,
-};
+use crate::core::{Answer, AnswerId, CustomerId, FormId, Graph};
 use anyhow::Result;
 
 pub struct Input {

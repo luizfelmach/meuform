@@ -1,4 +1,4 @@
-use crate::core::answer::{AnswerId, AnswerType};
+use crate::core::{AnswerId, AnswerType};
 use anyhow::Result;
 
 pub struct Input {

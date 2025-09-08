@@ -1,4 +1,4 @@
-use crate::core::customer::CustomerId;
+use crate::core::CustomerId;
 use anyhow::Result;
 
 pub struct Input {

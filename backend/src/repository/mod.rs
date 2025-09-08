@@ -1,4 +1,9 @@
-pub mod customer;
-pub mod form;
-pub mod answer;
-pub mod graph;
+mod answer;
+mod customer;
+mod form;
+mod graph;
+
+pub use answer::*;
+pub use customer::*;
+pub use form::*;
+pub use graph::*;

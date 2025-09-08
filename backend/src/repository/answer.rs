@@ -1,7 +1,4 @@
-use crate::core::{
-    answer::{Answer, AnswerType},
-    graph::NodeId,
-};
+use crate::core::{Answer, AnswerType, NodeId};
 use anyhow::Result;
 use std::collections::HashMap;
 
