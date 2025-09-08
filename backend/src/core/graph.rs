@@ -1,6 +1,5 @@
-use chrono::{DateTime, Utc};
-
 use crate::core::{condition::Condition, screen::Screen};
+use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
 pub type GraphId = String;

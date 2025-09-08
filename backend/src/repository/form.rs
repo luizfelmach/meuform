@@ -1,4 +1,8 @@
-use crate::core::{customer::CustomerId, form::Form, graph::{Graph, GraphId}};
+use crate::core::{
+    customer::CustomerId,
+    form::Form,
+    graph::{Graph, GraphId},
+};
 use anyhow::Result;
 
 pub struct CreateForm {
