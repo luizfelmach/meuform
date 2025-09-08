@@ -15,5 +15,5 @@ pub trait FormRepository {
     async fn get_by_slug(&self, slug: &String) -> Result<Option<Form>>;
     async fn update(&self, data: Form) -> Result<Form>;
     async fn delete(&self, id: &String) -> Result<()>;
-    async fn list_by_owner(&self, customer_id: &String) -> Result<Vec<Form>>;
+    async fn list_by_customer(&self, customer_id: &String) -> Result<Vec<Form>>;
 }

@@ -1,15 +1,16 @@
-use crate::core::{CustomerId, Form, FormId};
+use crate::core::{CustomerId, Form, FormId, Graph};
 use anyhow::Result;
 
-pub struct Input {
+pub struct GetFormInput {
     pub customer_id: CustomerId,
     pub form_id: FormId,
 }
 
-pub struct Output {
+pub struct GetFormOutput {
     pub form: Form,
+    pub graph: Graph,
 }
 
 pub trait GetForm {
-    async fn get(&self, data: Input) -> Result<Output>;
+    async fn get(&self, data: GetFormInput) -> Result<GetFormOutput>;
 }
