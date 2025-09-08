@@ -1,5 +1,5 @@
 use crate::{
-    protocols::{CustomerRepository, UpdateCustomerRepository},
+    protocols::CustomerRepository,
     usecase::{UpdateCustomer, UpdateCustomerInput, UpdateCustomerOutput},
 };
 use anyhow::anyhow;
@@ -22,21 +22,21 @@ where
     R: CustomerRepository,
 {
     async fn update(&self, data: UpdateCustomerInput) -> anyhow::Result<UpdateCustomerOutput> {
-        let customer = self
+        let mut customer = self
             .customer
             .get_by_id(&data.customer_id)
             .await?
             .ok_or_else(|| anyhow!("Customer not found"))?;
 
-        let customer = self
-            .customer
-            .update(UpdateCustomerRepository {
-                id: customer.id,
-                name: data.name,
-                email: data.email,
-                password: None,
-            })
-            .await?;
+        if let Some(email) = data.email {
+            customer.email = email
+        }
+
+        if let Some(name) = data.name {
+            customer.name = name
+        }
+
+        let customer = self.customer.update(customer).await?;
 
         Ok(UpdateCustomerOutput { customer })
     }
