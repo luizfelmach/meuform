@@ -9,7 +9,7 @@ pub struct CreateForm {
     pub slug: String,
     pub title: String,
     pub description: Option<String>,
-    pub owner_id: CustomerId,
+    pub customer_id: CustomerId,
     pub graph_id: GraphId,
 }
 
@@ -18,7 +18,7 @@ pub struct UpdateForm {
     pub slug: String,
     pub title: String,
     pub description: Option<String>,
-    pub owner_id: CustomerId,
+    pub customer_id: CustomerId,
     pub graph_id: GraphId,
 }
 
@@ -28,5 +28,5 @@ pub trait FormRepository {
     fn get_by_slug(&self, slug: &String) -> Result<Option<Form>>;
     fn update(&self, data: UpdateForm) -> Result<Form>;
     fn delete(&self, id: &String) -> Result<()>;
-    fn list_by_owner(&self, owner_id: &String) -> Result<Vec<Form>>;
+    fn list_by_owner(&self, customer_id: &String) -> Result<Vec<Form>>;
 }

@@ -8,7 +8,7 @@ pub struct Form {
     pub slug: String,
     pub title: String,
     pub description: Option<String>,
-    pub owner_id: CustomerId,
+    pub customer_id: CustomerId,
     pub graph_id: GraphId,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
