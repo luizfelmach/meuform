@@ -1,14 +1,14 @@
 use anyhow::Result;
 
-pub struct Input {
+pub struct AuthCustomerInput {
     pub email: String,
     pub password: String,
 }
 
-pub struct Output {
+pub struct AuthCustomerOutput {
     pub token: String,
 }
 
 pub trait AuthCustomer {
-    async fn auth(&self, data: Input) -> Result<Output>;
+    async fn auth(&self, data: AuthCustomerInput) -> Result<AuthCustomerOutput>;
 }

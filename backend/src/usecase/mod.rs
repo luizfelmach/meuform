@@ -1,5 +1,6 @@
 mod auth_customer;
 mod back_answer;
+mod create_customer;
 mod create_form;
 mod delete_customer;
 mod delete_form;
@@ -17,6 +18,7 @@ mod update_graph;
 
 pub use auth_customer::*;
 pub use back_answer::*;
+pub use create_customer::*;
 pub use create_form::*;
 pub use delete_customer::*;
 pub use delete_form::*;

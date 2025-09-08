@@ -2,11 +2,11 @@ use crate::core::{Answer, AnswerType, NodeId};
 use anyhow::Result;
 use std::collections::HashMap;
 
-pub struct CreateAnswer {
+pub struct CreateAnswerRepository {
     pub form_id: String,
 }
 
-pub struct UpdateAnswer {
+pub struct UpdateAnswerRepository {
     pub id: String,
     pub form_id: String,
     pub completed: bool,
@@ -15,8 +15,8 @@ pub struct UpdateAnswer {
 }
 
 pub trait AnswerRepository {
-    fn create(&self, data: CreateAnswer) -> Result<Answer>;
+    fn create(&self, data: CreateAnswerRepository) -> Result<Answer>;
     fn get_by_id(&self, id: &String) -> Result<Option<Answer>>;
-    fn update(&self, data: UpdateAnswer) -> Result<Answer>;
+    fn update(&self, data: UpdateAnswerRepository) -> Result<Answer>;
     fn delete(&self, id: &String) -> Result<()>;
 }

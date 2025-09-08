@@ -1,22 +1,23 @@
 use crate::core::Customer;
 use anyhow::Result;
 
-pub struct CreateCustomer {
+pub struct CreateCustomerRepository {
     pub name: String,
     pub email: String,
     pub password: String,
 }
 
-pub struct UpdateCustomer {
+pub struct UpdateCustomerRepository {
     pub id: String,
-    pub name: String,
-    pub email: String,
-    pub password: String,
+    pub name: Option<String>,
+    pub email: Option<String>,
+    pub password: Option<String>,
 }
 
 pub trait CustomerRepository {
-    fn create(&self, data: CreateCustomer) -> Result<Customer>;
-    fn get_by_id(&self, id: &String) -> Result<Option<Customer>>;
-    fn update(&self, data: UpdateCustomer) -> Result<Customer>;
-    fn delete(&self, id: &String) -> Result<()>;
+    async fn create(&self, data: CreateCustomerRepository) -> Result<Customer>;
+    async fn get_by_id(&self, id: &String) -> Result<Option<Customer>>;
+    async fn find_by_email(&self, email: &String) -> Result<Option<Customer>>;
+    async fn update(&self, data: UpdateCustomerRepository) -> Result<Customer>;
+    async fn delete(&self, id: &String) -> Result<()>;
 }

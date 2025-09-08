@@ -1,7 +1,7 @@
 use crate::core::{CustomerId, Form, GraphId};
 use anyhow::Result;
 
-pub struct CreateForm {
+pub struct CreateFormRepository {
     pub slug: String,
     pub title: String,
     pub description: Option<String>,
@@ -9,7 +9,7 @@ pub struct CreateForm {
     pub graph_id: GraphId,
 }
 
-pub struct UpdateForm {
+pub struct UpdateFormRepository {
     pub id: String,
     pub slug: String,
     pub title: String,
@@ -19,10 +19,10 @@ pub struct UpdateForm {
 }
 
 pub trait FormRepository {
-    fn create(&self, data: CreateForm) -> Result<Form>;
+    fn create(&self, data: CreateFormRepository) -> Result<Form>;
     fn get_by_id(&self, id: &String) -> Result<Option<Form>>;
     fn get_by_slug(&self, slug: &String) -> Result<Option<Form>>;
-    fn update(&self, data: UpdateForm) -> Result<Form>;
+    fn update(&self, data: UpdateFormRepository) -> Result<Form>;
     fn delete(&self, id: &String) -> Result<()>;
     fn list_by_owner(&self, customer_id: &String) -> Result<Vec<Form>>;
 }
