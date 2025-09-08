@@ -1,4 +1,7 @@
-use crate::core::{form::FormId, graph::NodeId};
+use crate::core::{
+    form::FormId,
+    graph::{GraphId, NodeId},
+};
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
@@ -18,6 +21,7 @@ pub enum AnswerType {
 pub struct Answer {
     pub id: AnswerId,
     pub form_id: FormId,
+    pub graph_id: GraphId,
     pub completed: bool,
     pub current_node: NodeId,
     pub responses: HashMap<NodeId, AnswerType>,
