@@ -9,8 +9,8 @@ pub struct UpdateGraphRepository {
 }
 
 pub trait GraphRepository {
-    fn create(&self) -> Result<Graph>;
-    fn get_by_id(&self, id: &String) -> Result<Option<Graph>>;
-    fn clone(&self, id: &String) -> Result<Graph>;
-    fn update(&self, data: UpdateGraphRepository) -> Result<Graph>;
+    async fn create(&self) -> Result<Graph>;
+    async fn get_by_id(&self, id: &String) -> Result<Option<Graph>>;
+    async fn clone(&self, id: &String) -> Result<Graph>;
+    async fn update(&self, data: UpdateGraphRepository) -> Result<Graph>;
 }

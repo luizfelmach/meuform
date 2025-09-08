@@ -24,6 +24,7 @@ pub struct Answer {
     pub graph_id: GraphId,
     pub completed: bool,
     pub current_node: NodeId,
+    pub history: Vec<NodeId>,
     pub responses: HashMap<NodeId, AnswerType>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

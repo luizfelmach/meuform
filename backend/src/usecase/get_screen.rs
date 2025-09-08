@@ -1,14 +1,14 @@
 use crate::core::{AnswerId, Screen};
 use anyhow::Result;
 
-pub struct Input {
-    answer_id: AnswerId,
+pub struct GetScreenInput {
+    pub answer_id: AnswerId,
 }
 
-pub struct Output {
-    screen: Screen,
+pub struct GetScreenOutput {
+    pub screen: Screen,
 }
 
 pub trait GetScreen {
-    async fn get(&self, data: Input) -> Result<Output>;
+    async fn get(&self, data: GetScreenInput) -> Result<GetScreenOutput>;
 }

@@ -19,10 +19,10 @@ pub struct UpdateFormRepository {
 }
 
 pub trait FormRepository {
-    fn create(&self, data: CreateFormRepository) -> Result<Form>;
-    fn get_by_id(&self, id: &String) -> Result<Option<Form>>;
-    fn get_by_slug(&self, slug: &String) -> Result<Option<Form>>;
-    fn update(&self, data: UpdateFormRepository) -> Result<Form>;
-    fn delete(&self, id: &String) -> Result<()>;
-    fn list_by_owner(&self, customer_id: &String) -> Result<Vec<Form>>;
+    async fn create(&self, data: CreateFormRepository) -> Result<Form>;
+    async fn get_by_id(&self, id: &String) -> Result<Option<Form>>;
+    async fn get_by_slug(&self, slug: &String) -> Result<Option<Form>>;
+    async fn update(&self, data: UpdateFormRepository) -> Result<Form>;
+    async fn delete(&self, id: &String) -> Result<()>;
+    async fn list_by_owner(&self, customer_id: &String) -> Result<Vec<Form>>;
 }

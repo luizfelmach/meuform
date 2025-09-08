@@ -1,15 +1,11 @@
 use crate::core::{AnswerId, AnswerType};
 use anyhow::Result;
 
-pub struct Input {
-    answer_id: AnswerId,
-    answer: AnswerType,
-}
-
-pub struct Output {
-    completed: bool,
+pub struct SubmitAnswerInput {
+    pub answer_id: AnswerId,
+    pub answer: AnswerType,
 }
 
 pub trait SubmitAnswer {
-    async fn submit(&self, data: Input) -> Result<Output>;
+    async fn submit(&self, data: SubmitAnswerInput) -> Result<()>;
 }

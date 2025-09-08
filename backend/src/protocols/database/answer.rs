@@ -4,19 +4,12 @@ use std::collections::HashMap;
 
 pub struct CreateAnswerRepository {
     pub form_id: String,
-}
-
-pub struct UpdateAnswerRepository {
-    pub id: String,
-    pub form_id: String,
-    pub completed: bool,
-    pub current_node: NodeId,
-    pub responses: HashMap<NodeId, AnswerType>,
+    pub graph_id: String,
 }
 
 pub trait AnswerRepository {
-    fn create(&self, data: CreateAnswerRepository) -> Result<Answer>;
-    fn get_by_id(&self, id: &String) -> Result<Option<Answer>>;
-    fn update(&self, data: UpdateAnswerRepository) -> Result<Answer>;
-    fn delete(&self, id: &String) -> Result<()>;
+    async fn create(&self, data: CreateAnswerRepository) -> Result<Answer>;
+    async fn get_by_id(&self, id: &String) -> Result<Option<Answer>>;
+    async fn update(&self, data: Answer) -> Result<Answer>;
+    async fn delete(&self, id: &String) -> Result<()>;
 }

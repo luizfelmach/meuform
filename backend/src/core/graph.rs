@@ -13,6 +13,7 @@ pub struct Graph {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Clone)]
 pub struct Node {
     pub id: NodeId,
     pub screen: Screen,
