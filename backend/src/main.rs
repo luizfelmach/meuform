@@ -1,5 +1,6 @@
 mod core;
-mod repository;
+mod data;
+mod protocols;
 mod usecase;
 
 fn main() {
