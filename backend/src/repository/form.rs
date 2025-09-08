@@ -1,0 +1,28 @@
+use crate::core::{customer::CustomerId, form::Form, graph::{Graph, GraphId}};
+use anyhow::Result;
+
+pub struct CreateForm {
+    pub slug: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub owner_id: CustomerId,
+    pub graph_id: GraphId,
+}
+
+pub struct UpdateForm {
+    pub id: String,
+    pub slug: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub owner_id: CustomerId,
+    pub graph_id: GraphId,
+}
+
+pub trait FormRepository {
+    fn create(&self, data: CreateForm) -> Result<Form>;
+    fn get_by_id(&self, id: &String) -> Result<Option<Form>>;
+    fn get_by_slug(&self, slug: &String) -> Result<Option<Form>>;
+    fn update(&self, data: UpdateForm) -> Result<Form>;
+    fn delete(&self, id: &String) -> Result<()>;
+    fn list_by_owner(&self, owner_id: &String) -> Result<Vec<Form>>;
+}
