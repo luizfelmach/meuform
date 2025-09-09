@@ -1,7 +1,9 @@
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 
 pub type CustomerId = String;
 
+#[derive(Serialize)]
 pub struct Customer {
     pub id: CustomerId,
     pub name: String,
