@@ -3,10 +3,12 @@ use crate::core::{
     graph::{GraphId, NodeId},
 };
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub type AnswerId = String;
 
+#[derive(Serialize, Deserialize, Clone)]
 pub enum AnswerType {
     Text(String),
     TextArea(String),
@@ -18,7 +20,9 @@ pub enum AnswerType {
     Empty,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Answer {
+    #[serde(rename = "_id")]
     pub id: AnswerId,
     pub form_id: FormId,
     pub graph_id: GraphId,
