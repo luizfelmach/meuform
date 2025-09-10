@@ -1,4 +1,5 @@
 use anyhow::Result;
+use domain::{Form, Submission};
 
 #[async_trait::async_trait]
 pub trait FindById<T> {
@@ -31,6 +32,21 @@ pub trait DeleteById<T> {
 }
 
 #[async_trait::async_trait]
-pub trait ListById<T> {
-    async fn list_by_id(&self, id: &String, limit: usize, offset: usize) -> Result<Vec<T>>;
+pub trait ListForms {
+    async fn list_forms(
+        &self,
+        customer_id: &String,
+        limit: Option<usize>,
+        offset: Option<usize>,
+    ) -> Result<Vec<Form>>;
+}
+
+#[async_trait::async_trait]
+pub trait ListSubmissions {
+    async fn list_submissions(
+        &self,
+        form_id: &String,
+        limit: Option<usize>,
+        offset: Option<usize>,
+    ) -> Result<Vec<Submission>>;
 }

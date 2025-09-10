@@ -1,10 +1,13 @@
 [package]
-name = "protocols"
+name = "infra"
 version = "0.1.0"
 edition = "2024"
 
 
 [dependencies]
 domain = { path = "../domain" }
-anyhow = "1.0.99"
+protocols = { path = "../protocols" }
 async-trait = "0.1.89"
+anyhow = "1.0.99"
+mongodb = "3.3.0"
+futures-util = "0.3.31"
