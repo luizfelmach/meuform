@@ -1,4 +1,4 @@
-use crate::{Answer, FlowId, FormId, NodeId, SubmissionId};
+use crate::{Answer, CustomerId, FlowId, FormId, NodeId, SubmissionId};
 
 use anyhow::{Ok, Result, bail};
 use chrono::{DateTime, Utc};
@@ -12,8 +12,9 @@ pub struct Submission {
     pub status: SubmissionStatus,
     pub history: Vec<NodeId>,
     pub answers: HashMap<NodeId, Answer>,
-    pub form_id: FormId,
     pub flow_id: FlowId,
+    pub form_id: FormId,
+    pub customer_id: CustomerId,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -25,7 +26,13 @@ pub enum SubmissionStatus {
 }
 
 impl Submission {
-    pub fn new(id: SubmissionId, form_id: FormId, flow_id: FlowId, node: NodeId) -> Self {
+    pub fn new(
+        id: SubmissionId,
+        form_id: FormId,
+        flow_id: FlowId,
+        customer_id: CustomerId,
+        node: NodeId,
+    ) -> Self {
         let now = Utc::now();
         Self {
             id,
@@ -34,6 +41,7 @@ impl Submission {
             status: SubmissionStatus::InProgress(node),
             history: vec![node],
             answers: HashMap::new(),
+            customer_id,
             created_at: now,
             updated_at: now,
         }

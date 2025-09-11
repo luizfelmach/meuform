@@ -1,18 +1,42 @@
 use anyhow::Result;
-use domain::{CustomerId, Form, FormId};
+use domain::{CustomerId, Edges, Flow, Form, FormId, Nodes};
 
 #[async_trait::async_trait]
-pub trait FormUseCase {
-    async fn create(&self, data: CreateFormInput) -> Result<CreateFormOutput>;
-    async fn get(&self, data: GetFormInput) -> Result<GetFormOutput>;
-    async fn update(&self, data: UpdateFormInput) -> Result<UpdateFormOutput>;
-    async fn delete(&self, data: DeleteFormInput) -> Result<()>;
+pub trait CreateForm {
+    async fn execute(&self, data: CreateFormInput) -> Result<CreateFormOutput>;
+}
+
+#[async_trait::async_trait]
+pub trait GetForm {
+    async fn execute(&self, data: GetFormInput) -> Result<GetFormOutput>;
+}
+
+#[async_trait::async_trait]
+pub trait UpdateForm {
+    async fn execute(&self, data: UpdateFormInput) -> Result<UpdateFormOutput>;
+}
+
+#[async_trait::async_trait]
+pub trait DeleteForm {
+    async fn execute(&self, data: DeleteFormInput) -> Result<()>;
+}
+
+#[async_trait::async_trait]
+pub trait ListForms {
+    async fn execute(&self, data: ListFormsInput) -> Result<ListFormsOutput>;
+}
+
+#[async_trait::async_trait]
+pub trait UpdateFormFlow {
+    async fn execute(&self, data: UpdateFormFlowInput) -> Result<UpdateFormFlowOutput>;
 }
 
 pub struct CreateFormInput {
     pub customer_id: CustomerId,
-    pub title: String,
+    pub name: String,
     pub slug: String,
+    pub nodes: Nodes,
+    pub edges: Edges,
 }
 
 pub struct CreateFormOutput {
@@ -20,8 +44,8 @@ pub struct CreateFormOutput {
 }
 
 pub struct GetFormInput {
+    pub id: FormId,
     pub customer_id: CustomerId,
-    pub form_id: FormId,
 }
 
 pub struct GetFormOutput {
@@ -29,11 +53,10 @@ pub struct GetFormOutput {
 }
 
 pub struct UpdateFormInput {
+    pub id: FormId,
     pub customer_id: CustomerId,
-    pub form_id: FormId,
     pub slug: Option<String>,
-    pub title: Option<String>,
-    pub description: Option<Option<String>>,
+    pub name: Option<String>,
 }
 
 pub struct UpdateFormOutput {
@@ -41,6 +64,27 @@ pub struct UpdateFormOutput {
 }
 
 pub struct DeleteFormInput {
+    pub id: FormId,
     pub customer_id: CustomerId,
-    pub form_id: FormId,
+}
+
+pub struct ListFormsInput {
+    pub customer_id: CustomerId,
+    pub limit: Option<usize>,
+    pub offset: Option<usize>,
+}
+
+pub struct ListFormsOutput {
+    pub forms: Vec<Form>,
+}
+
+pub struct UpdateFormFlowInput {
+    pub id: FormId,
+    pub customer_id: CustomerId,
+    pub nodes: Nodes,
+    pub edges: Edges,
+}
+
+pub struct UpdateFormFlowOutput {
+    pub flow: Flow,
 }
