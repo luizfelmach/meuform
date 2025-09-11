@@ -29,7 +29,7 @@ impl MongoRepository {
 }
 
 impl GenerateUuid for MongoRepository {
-    fn generate_uuid() -> Result<String> {
+    fn generate_uuid(&self) -> Result<String> {
         Ok(ObjectId::new().to_string())
     }
 }

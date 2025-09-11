@@ -36,6 +36,16 @@ impl Customer {
             updated_at: now,
         }
     }
+
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+        self.updated_at = Utc::now();
+    }
+
+    pub fn set_email(&mut self, email: String) {
+        self.email = email;
+        self.updated_at = Utc::now();
+    }
 }
 
 impl From<Customer> for CustomerWithoutPassword {

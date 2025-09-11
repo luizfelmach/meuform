@@ -1,0 +1,12 @@
+[package]
+name = "data"
+version = "0.1.0"
+edition = "2024"
+
+
+[dependencies]
+domain = { path = "../domain" }
+protocols = { path = "../protocols" }
+usecases = { path = "../usecases" }
+anyhow = "1.0.99"
+async-trait = "0.1.89"
