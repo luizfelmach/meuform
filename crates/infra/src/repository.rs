@@ -1,14 +1,10 @@
 use anyhow::Result;
 use domain::{Customer, Flow, Form, Submission};
 use futures_util::stream::TryStreamExt;
-use mongodb::{
-    Client, Collection,
-    bson::{doc, oid::ObjectId},
-    options::ClientOptions,
-};
-use protocols::{
-    DeleteById, FindByEmail, FindById, FindBySlug, ListForms, ListSubmissions, Save, Update,
-};
+use mongodb::bson::{doc, oid::ObjectId};
+use mongodb::{Client, Collection, options::ClientOptions};
+use protocols::{DeleteById, FindByEmail, FindById, FindBySlug};
+use protocols::{GenerateUuid, ListForms, ListSubmissions, Save, Update};
 
 pub struct MongoRepository {
     pub submission: Collection<Submission>,
@@ -29,6 +25,12 @@ impl MongoRepository {
             customer: db.collection::<Customer>("customers"),
             flow: db.collection::<Flow>("flows"),
         })
+    }
+}
+
+impl GenerateUuid for MongoRepository {
+    fn generate_uuid() -> Result<String> {
+        Ok(ObjectId::new().to_string())
     }
 }
 

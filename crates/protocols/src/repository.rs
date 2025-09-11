@@ -1,6 +1,10 @@
 use anyhow::Result;
 use domain::{Form, Submission};
 
+pub trait GenerateUuid {
+    fn generate_uuid() -> Result<String>;
+}
+
 #[async_trait::async_trait]
 pub trait FindById<T> {
     async fn find_by_id(&self, id: &String) -> Result<Option<T>>;
