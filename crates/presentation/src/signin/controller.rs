@@ -14,7 +14,7 @@ impl Controller for SignInController {
             token: "signin".into(),
         };
 
-        HttpResponse::ok(response)
+        return HttpResponse::ok(response);
     }
 }
 
@@ -27,6 +27,6 @@ impl Controller for SignUpController {
             token: "signup".into(),
         };
 
-        HttpResponse::ok(response)
+        return HttpResponse::ok(response);
     }
 }
