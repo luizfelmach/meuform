@@ -11,6 +11,12 @@ pub struct HttpRequest {
 
 impl HttpRequest {
     pub fn json<T: DeserializeOwned>(&self) -> Result<T, HttpError> {
+        if self.body.is_empty() {
+            return Err(HttpError::InvalidInput(
+                "Empty request body: expected JSON".to_string(),
+            ));
+        }
+
         serde_json::from_slice(&self.body).map_err(|e| HttpError::InvalidInput(e.to_string()))
     }
 

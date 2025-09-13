@@ -1,5 +1,4 @@
 use crate::{HttpError, HttpRequest, HttpResponse};
-
 use std::sync::Arc;
 
 #[async_trait::async_trait]
@@ -12,6 +11,6 @@ pub type DynController = Arc<dyn Controller>;
 #[macro_export]
 macro_rules! controller {
     ($handler:expr) => {
-        Arc::new($handler) as DynController
+        ::std::sync::Arc::new($handler) as $crate::DynController
     };
 }
