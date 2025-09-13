@@ -5,4 +5,6 @@ members = [
     "crates/infra",
     "crates/usecases",
     "crates/data",
+    "crates/presentation",
+    "crates/main",
 ]
