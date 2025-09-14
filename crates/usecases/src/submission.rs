@@ -1,108 +1,70 @@
 use anyhow::Result;
 use domain::{Answer, CustomerId, FormId, Screen, Submission, SubmissionId};
+use std::sync::Arc;
+
+pub type DynStartSubmission = Arc<dyn StartSubmission>;
+pub type DynSubmitAnswerSubmission = Arc<dyn SubmitAnswerSubmission>;
+pub type DynGoNextSubmission = Arc<dyn GoNextSubmission>;
+pub type DynGoBackSubmission = Arc<dyn GoBackSubmission>;
+pub type DynIsCompletedSubmission = Arc<dyn IsCompletedSubmission>;
+pub type DynScreenSubmission = Arc<dyn ScreenSubmission>;
+pub type DynCanGoBackSubmission = Arc<dyn CanGoBackSubmission>;
+pub type DynCanGoNextSubmission = Arc<dyn CanGoNextSubmission>;
+pub type DynGetSubmission = Arc<dyn GetSubmission>;
+pub type DynListSubmissions = Arc<dyn ListSubmissions>;
 
 #[async_trait::async_trait]
 pub trait StartSubmission {
-    async fn execute(&self, data: StartSubmissionInput) -> Result<StartSubmissionOutput>;
+    async fn execute(&self, slug: &String) -> Result<Submission>;
 }
 
 #[async_trait::async_trait]
 pub trait SubmitAnswerSubmission {
-    async fn execute(&self, data: SubmitAnswerSubmissionInput) -> Result<()>;
+    async fn execute(&self, id: &SubmissionId, answer: Answer) -> Result<()>;
 }
 
 #[async_trait::async_trait]
 pub trait GoNextSubmission {
-    async fn execute(&self, data: GoNextSubmissionInput) -> Result<GoNextSubmissionOutput>;
-}
-
-#[async_trait::async_trait]
-pub trait ScreenSubmission {
-    async fn execute(&self, data: ScreenSubmissionInput) -> Result<ScreenSubmissionOutput>;
+    async fn execute(&self, id: &SubmissionId) -> Result<()>;
 }
 
 #[async_trait::async_trait]
 pub trait GoBackSubmission {
-    async fn execute(&self, data: GoBackSubmissionInput) -> Result<()>;
+    async fn execute(&self, id: &SubmissionId) -> Result<()>;
+}
+
+#[async_trait::async_trait]
+pub trait IsCompletedSubmission {
+    async fn execute(&self, id: &SubmissionId) -> Result<bool>;
+}
+
+#[async_trait::async_trait]
+pub trait ScreenSubmission {
+    async fn execute(&self, id: &SubmissionId) -> Result<Screen>;
 }
 
 #[async_trait::async_trait]
 pub trait CanGoBackSubmission {
-    async fn execute(&self, data: CanGoBackSubmissionInput) -> Result<()>;
+    async fn execute(&self, id: &SubmissionId) -> Result<bool>;
 }
 
 #[async_trait::async_trait]
 pub trait CanGoNextSubmission {
-    async fn execute(&self, data: CanGoNextSubmissionInput) -> Result<()>;
+    async fn execute(&self, id: &SubmissionId) -> Result<bool>;
 }
 
 #[async_trait::async_trait]
 pub trait GetSubmission {
-    async fn execute(&self, data: GetSubmissionInput) -> Result<GetSubmissionOutput>;
+    async fn execute(&self, id: &SubmissionId, customer_id: &CustomerId) -> Result<Submission>;
 }
 
 #[async_trait::async_trait]
 pub trait ListSubmissions {
-    async fn execute(&self, data: ListSubmissionsInput) -> Result<ListSubmissionsOutput>;
-}
-
-pub struct StartSubmissionInput {
-    pub slug: String,
-}
-
-pub struct StartSubmissionOutput {
-    pub submission: Submission,
-}
-
-pub struct SubmitAnswerSubmissionInput {
-    pub id: SubmissionId,
-    pub answer: Answer,
-}
-
-pub struct GoNextSubmissionInput {
-    pub id: SubmissionId,
-}
-
-pub struct GoNextSubmissionOutput {
-    pub completed: bool,
-}
-
-pub struct ScreenSubmissionInput {
-    pub id: SubmissionId,
-}
-
-pub struct ScreenSubmissionOutput {
-    pub screen: Screen,
-}
-
-pub struct GoBackSubmissionInput {
-    pub id: SubmissionId,
-}
-
-pub struct CanGoBackSubmissionInput {
-    pub id: SubmissionId,
-}
-
-pub struct CanGoNextSubmissionInput {
-    pub id: SubmissionId,
-}
-
-pub struct GetSubmissionInput {
-    pub id: SubmissionId,
-    pub customer_id: CustomerId,
-}
-
-pub struct GetSubmissionOutput {
-    pub submission: Submission,
-}
-
-pub struct ListSubmissionsInput {
-    pub customer_id: CustomerId,
-    pub form_id: FormId,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-}
-
-pub struct ListSubmissionsOutput {
-    pub submissions: Vec<Submission>,
+    async fn execute(
+        &self,
+        form_id: &FormId,
+        customer_id: &CustomerId,
+        limit: Option<usize>,
+        offset: Option<usize>,
+    ) -> Result<Vec<Submission>>;
 }

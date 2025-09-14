@@ -1,5 +1,5 @@
 use anyhow::Result;
-use domain::{Customer, CustomerId};
+use domain::{CustomerId, CustomerWithoutPassword};
 use std::sync::Arc;
 
 pub type DynAuthCustomer = Arc<dyn AuthCustomer>;
@@ -9,6 +9,7 @@ pub type DynUpdateCustomer = Arc<dyn UpdateCustomer>;
 pub type DynDeleteCustomer = Arc<dyn DeleteCustomer>;
 pub type DynForgotPasswordCustomer = Arc<dyn ForgotPasswordCustomer>;
 pub type DynUpdatePasswordCustomer = Arc<dyn UpdatePasswordCustomer>;
+pub type DynAuthenticatedCustomer = Arc<dyn AuthenticatedCustomer>;
 
 #[async_trait::async_trait]
 pub trait AuthCustomer: Send + Sync {
@@ -17,62 +18,46 @@ pub trait AuthCustomer: Send + Sync {
 
 #[async_trait::async_trait]
 pub trait CreateCustomer: Send + Sync {
-    async fn execute(&self, name: &String, email: &String, password: &String) -> Result<()>;
+    async fn execute(
+        &self,
+        name: &String,
+        email: &String,
+        password: &String,
+    ) -> Result<CustomerWithoutPassword>;
 }
 
 #[async_trait::async_trait]
 pub trait GetCustomer: Send + Sync {
-    async fn execute(&self, data: GetCustomerInput) -> Result<GetCustomerOutput>;
+    async fn execute(&self, id: &CustomerId) -> Result<CustomerWithoutPassword>;
 }
 
 #[async_trait::async_trait]
 pub trait UpdateCustomer: Send + Sync {
-    async fn execute(&self, data: UpdateCustomerInput) -> Result<UpdateCustomerOutput>;
+    async fn execute(&self, data: UpdateCustomerInput) -> Result<()>;
 }
 
 #[async_trait::async_trait]
 pub trait DeleteCustomer: Send + Sync {
-    async fn execute(&self, data: DeleteCustomerInput) -> Result<()>;
+    async fn execute(&self, id: &CustomerId) -> Result<()>;
 }
 
 #[async_trait::async_trait]
 pub trait ForgotPasswordCustomer: Send + Sync {
-    async fn execute(&self, data: ForgotPasswordCustomerInput) -> Result<()>;
+    async fn execute(&self, id: &CustomerId) -> Result<()>;
 }
 
 #[async_trait::async_trait]
 pub trait UpdatePasswordCustomer: Send + Sync {
-    async fn execute(&self, data: UpdatePasswordCustomerInput) -> Result<()>;
+    async fn execute(&self, token: &String, password: &String) -> Result<CustomerWithoutPassword>;
 }
 
-pub struct GetCustomerInput {
-    pub id: CustomerId,
-}
-
-pub struct GetCustomerOutput {
-    pub customer: Customer,
+#[async_trait::async_trait]
+pub trait AuthenticatedCustomer: Send + Sync {
+    async fn execute(&self, token: &String) -> Result<CustomerId>;
 }
 
 pub struct UpdateCustomerInput {
     pub id: CustomerId,
     pub name: Option<String>,
     pub email: Option<String>,
-}
-
-pub struct UpdateCustomerOutput {
-    pub customer: Customer,
-}
-
-pub struct DeleteCustomerInput {
-    pub id: CustomerId,
-}
-
-pub struct ForgotPasswordCustomerInput {
-    pub id: CustomerId,
-}
-
-pub struct UpdatePasswordCustomerInput {
-    pub id: CustomerId,
-    pub token: String,
-    pub password: String,
 }
