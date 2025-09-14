@@ -1,7 +1,6 @@
 use anyhow::Result;
 use domain::{Customer, Flow, Form, Submission};
 use mongodb::{Client, Collection, options::ClientOptions};
-use std::sync::Arc;
 
 pub struct MongoRepository {
     pub submission: Collection<Submission>,
@@ -11,7 +10,7 @@ pub struct MongoRepository {
 }
 
 impl MongoRepository {
-    pub async fn new(uri: &String, db: &String) -> Result<Arc<Self>> {
+    pub async fn new(uri: &String, db: &String) -> Result<Self> {
         let options = ClientOptions::parse(uri).await?;
         let client = Client::with_options(options)?;
         let db = client.database(db);
@@ -23,6 +22,6 @@ impl MongoRepository {
             flow: db.collection::<Flow>("flows"),
         };
 
-        Ok(Arc::new(mongo))
+        Ok(mongo)
     }
 }

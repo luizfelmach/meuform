@@ -7,6 +7,8 @@ edition = "2024"
 presentation = { path = "../presentation" }
 usecases = { path = "../usecases" }
 data = { path = "../data" }
+infra = { path = "../infra" }
+protocols = { path = "../protocols" }
 axum = "0.8.4"
 tokio = { version = "1.47.1", features = ["full"] }
 futures = "0.3.31"
