@@ -1,7 +1,6 @@
 use crate::{Controller, HttpError, HttpRequest, HttpResponse};
 use crate::{SignInBody, SignInResponse, SignUpBody};
 use usecases::{DynAuthCustomer, DynCreateCustomer};
-use validator::Validate;
 
 pub struct SignInController {
     pub auth: DynAuthCustomer,
