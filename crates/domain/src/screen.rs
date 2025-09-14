@@ -1,6 +1,5 @@
-use crate::{Answer, AnswerValue};
+use crate::{Answer, AnswerValue, Result, ScreenError};
 
-use anyhow::{Result, bail};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -193,9 +192,7 @@ impl Condition {
 impl Screen {
     pub fn accepts_answer(&self, answer: &Answer) -> Result<()> {
         match answer {
-            Answer::Empty if self.field.required() => {
-                bail!("This field is required and cannot be empty.")
-            }
+            Answer::Empty if self.field.required() => Err(ScreenError::RequiredField)?,
             Answer::Empty => Ok(()),
             Answer::Value(value) => self.field.validate(value),
         }
@@ -212,8 +209,8 @@ impl Screen {
             (ScreenField::Checkbox { .. }, Checkbox(_)) => Ok(()),
             (ScreenField::Date { .. }, Date(_)) => Ok(()),
             (ScreenField::Boolean { .. }, Boolean(_)) => Ok(()),
-            (ScreenField::Info, _) => bail!("Info fields do not accept conditions."),
-            _ => bail!("Condition type does not match the field type."),
+            (ScreenField::Info, _) => Err(ScreenError::InfoFieldConditionNotAllowed)?,
+            _ => Err(ScreenError::ConditionTypeMismatch)?,
         }
     }
 }
@@ -244,7 +241,7 @@ impl ScreenField {
             (ScreenField::Checkbox { .. }, AnswerValue::TextList(v)) => self.validate_checkbox(v),
             (ScreenField::Date { .. }, AnswerValue::Date(v)) => self.validate_date(v),
             (ScreenField::Boolean { .. }, AnswerValue::Boolean(v)) => self.validate_boolean(*v),
-            _ => bail!("The provided value is not compatible with this field type."),
+            _ => Err(ScreenError::TypeMismatch)?,
         }
     }
 
@@ -258,12 +255,18 @@ impl ScreenField {
             let len = text.chars().count() as u32;
             if let Some(min) = min_length {
                 if len < *min {
-                    bail!("Text too short. Min {}, got {}", min, len);
+                    return Err(ScreenError::TextTooShort {
+                        min: *min,
+                        got: len,
+                    })?;
                 }
             }
             if let Some(max) = max_length {
                 if len > *max {
-                    bail!("Text too long. Max {}, got {}", max, len);
+                    return Err(ScreenError::TextTooLong {
+                        max: *max,
+                        got: len,
+                    })?;
                 }
             }
         }
@@ -280,12 +283,18 @@ impl ScreenField {
             let len = text.chars().count() as u32;
             if let Some(min) = min_length {
                 if len < *min {
-                    bail!("TextArea too short. Min {}, got {}", min, len);
+                    return Err(ScreenError::TextTooShort {
+                        min: *min,
+                        got: len,
+                    })?;
                 }
             }
             if let Some(max) = max_length {
                 if len > *max {
-                    bail!("TextArea too long. Max {}, got {}", max, len);
+                    return Err(ScreenError::TextTooLong {
+                        max: *max,
+                        got: len,
+                    })?;
                 }
             }
         }
@@ -296,12 +305,18 @@ impl ScreenField {
         if let ScreenField::Number { min, max, .. } = self {
             if let Some(min) = min {
                 if num < *min {
-                    bail!("Number {} below minimum {}", num, min);
+                    return Err(ScreenError::NumberTooSmall {
+                        min: *min,
+                        got: num,
+                    })?;
                 }
             }
             if let Some(max) = max {
                 if num > *max {
-                    bail!("Number {} above maximum {}", num, max);
+                    return Err(ScreenError::NumberTooLarge {
+                        max: *max,
+                        got: num,
+                    })?;
                 }
             }
         }
@@ -311,7 +326,9 @@ impl ScreenField {
     fn validate_radio(&self, selected: &str) -> Result<()> {
         if let ScreenField::Radio { options, .. } = self {
             if !options.iter().any(|o| o.value == *selected) {
-                bail!("Invalid option '{}'", selected);
+                return Err(ScreenError::InvalidOption {
+                    value: selected.into(),
+                })?;
             }
         }
         Ok(())
@@ -327,24 +344,31 @@ impl ScreenField {
         {
             for sel in selected {
                 if !options.iter().any(|o| o.value == *sel) {
-                    bail!("Invalid option '{}'", sel);
+                    return Err(ScreenError::InvalidOption { value: sel.clone() })?;
                 }
             }
 
             let count = selected.len() as u32;
+
             if let Some(min) = min_selections {
                 if count < *min {
-                    bail!("Too few selections. Min {}, got {}", min, count);
+                    return Err(ScreenError::TooFewSelections {
+                        min: *min,
+                        got: count,
+                    })?;
                 }
             }
             if let Some(max) = max_selections {
                 if count > *max {
-                    bail!("Too many selections. Max {}, got {}", max, count);
+                    return Err(ScreenError::TooManySelections {
+                        max: *max,
+                        got: count,
+                    })?;
                 }
             }
 
             if selected.len() != HashSet::<_>::from_iter(selected.iter()).len() {
-                bail!("Duplicate selections found");
+                return Err(ScreenError::DuplicateSelections)?;
             }
         }
         Ok(())
@@ -357,12 +381,18 @@ impl ScreenField {
         {
             if let Some(min) = min_date {
                 if date < min {
-                    bail!("Date {} before minimum {}", date, min);
+                    return Err(ScreenError::DateTooEarly {
+                        min: *min,
+                        got: *date,
+                    })?;
                 }
             }
             if let Some(max) = max_date {
                 if date > max {
-                    bail!("Date {} after maximum {}", date, max);
+                    return Err(ScreenError::DateTooLate {
+                        max: *max,
+                        got: *date,
+                    })?;
                 }
             }
         }

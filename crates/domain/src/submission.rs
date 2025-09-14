@@ -1,6 +1,5 @@
-use crate::{Answer, CustomerId, FlowId, FormId, NodeId, SubmissionId};
+use crate::{Answer, CustomerId, FlowId, FormId, NodeId, Result, SubmissionError, SubmissionId};
 
-use anyhow::{Ok, Result, bail};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -49,7 +48,7 @@ impl Submission {
 
     pub fn respond(&mut self, answer: Answer) -> Result<()> {
         match self.status {
-            SubmissionStatus::Completed => bail!("Cannot add a response to a completed submission"),
+            SubmissionStatus::Completed => Err(SubmissionError::AlreadyCompleted)?,
             SubmissionStatus::InProgress(node) => {
                 self.answers.insert(node, answer);
                 self.updated_at = Utc::now();
@@ -60,9 +59,7 @@ impl Submission {
 
     pub fn withdraw(&mut self, node: &NodeId) -> Result<()> {
         match self.status {
-            SubmissionStatus::Completed => {
-                bail!("Cannot remove a response to a completed submission")
-            }
+            SubmissionStatus::Completed => Err(SubmissionError::AlreadyCompleted)?,
             SubmissionStatus::InProgress(_) => {
                 self.updated_at = Utc::now();
                 self.answers.remove(node);
@@ -73,11 +70,9 @@ impl Submission {
 
     pub fn goto(&mut self, node: NodeId) -> Result<()> {
         match self.status {
-            SubmissionStatus::Completed => {
-                bail!("Cannot move to another node in a completed submission")
-            }
+            SubmissionStatus::Completed => Err(SubmissionError::AlreadyCompleted)?,
             SubmissionStatus::InProgress(active) if active == node => {
-                bail!("Cannot move to active node")
+                Err(SubmissionError::SameNodeNavigation)?
             }
             SubmissionStatus::InProgress(_) => {
                 self.history.push(node);
@@ -90,11 +85,9 @@ impl Submission {
 
     pub fn back(&mut self) -> Result<()> {
         match self.status {
-            SubmissionStatus::Completed => {
-                bail!("Cannot go back in a completed submission")
-            }
+            SubmissionStatus::Completed => Err(SubmissionError::AlreadyCompleted)?,
             SubmissionStatus::InProgress(_) if self.history.len() <= 1 => {
-                bail!("No previous node to go back to")
+                Err(SubmissionError::NoPreviousNode)?
             }
             SubmissionStatus::InProgress(_) => {
                 self.history.pop();
@@ -108,9 +101,7 @@ impl Submission {
 
     pub fn complete(&mut self) -> Result<()> {
         match self.status {
-            SubmissionStatus::Completed => {
-                bail!("Submission is already completed")
-            }
+            SubmissionStatus::Completed => Err(SubmissionError::AlreadyCompleted)?,
             SubmissionStatus::InProgress(_) => {
                 self.status = SubmissionStatus::Completed;
                 self.updated_at = Utc::now();

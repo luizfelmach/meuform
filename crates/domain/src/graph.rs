@@ -1,6 +1,5 @@
-use crate::{Condition, NodeId, Screen};
+use crate::{Condition, GraphError, NodeId, Result, Screen};
 
-use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -12,7 +11,6 @@ pub struct Graph {
     pub nodes: Nodes,
     pub edges: Edges,
     pub start: NodeId,
-    pub end: Vec<NodeId>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -28,12 +26,11 @@ pub enum Edge {
 }
 
 impl Graph {
-    pub fn init(nodes: Nodes, edges: Edges, start: NodeId, end: Vec<NodeId>) -> Result<Self> {
+    pub fn new(nodes: Nodes, edges: Edges, start: NodeId) -> Result<Self> {
         let graph = Graph {
             nodes,
             edges,
             start,
-            end,
         };
         let _ = graph.validate()?;
 
@@ -47,7 +44,6 @@ impl Default for Graph {
             nodes: HashMap::new(),
             edges: HashMap::new(),
             start: 1,
-            end: Vec::new(),
         }
     }
 }
@@ -55,13 +51,7 @@ impl Default for Graph {
 impl Graph {
     fn validate(&self) -> Result<()> {
         if !self.nodes.contains_key(&self.start) {
-            bail!("Start node '{}' does not exist in nodes", self.start);
-        }
-
-        for end in &self.end {
-            if !self.nodes.contains_key(end) {
-                bail!("End node '{}' does not exist in nodes", end);
-            }
+            return Err(GraphError::StartNodeMissing(self.start))?;
         }
 
         for (from, edges) in &self.edges {
@@ -70,7 +60,10 @@ impl Graph {
                     Edge::Unconditional { to } | Edge::Conditional { to, .. } => to,
                 };
                 if !self.nodes.contains_key(to) {
-                    bail!("Edge from node '{from}' references non-existent node '{to}'");
+                    return Err(GraphError::EdgeToNonExistentNode {
+                        from: *from,
+                        to: *to,
+                    })?;
                 }
             }
         }
@@ -82,11 +75,16 @@ impl Graph {
                 } = edge
                 {
                     if !self.nodes.contains_key(r#where) {
-                        bail!("Conditional from '{from}' references non-existent node '{where}'");
+                        return Err(GraphError::ConditionalEdgeNodeMissing {
+                            from: *from,
+                            r#where: *r#where,
+                        })?;
                     }
 
                     let screen = &self.nodes[r#where];
-                    let _ = screen.accepts_condition(condition)?;
+                    screen
+                        .accepts_condition(condition)
+                        .map_err(|_| GraphError::InvalidCondition(*r#where))?;
                 }
             }
         }

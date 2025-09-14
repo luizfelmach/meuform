@@ -1,5 +1,6 @@
 mod answer;
 mod customer;
+mod error;
 mod flow;
 mod form;
 mod graph;
@@ -10,6 +11,7 @@ mod submission;
 
 pub use answer::*;
 pub use customer::*;
+pub use error::*;
 pub use flow::*;
 pub use form::*;
 pub use graph::*;
