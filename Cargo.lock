@@ -993,7 +993,7 @@ dependencies = [
  "bcrypt",
  "chrono",
  "domain",
- "futures-util",
+ "futures",
  "jsonwebtoken",
  "mongodb",
  "protocols",

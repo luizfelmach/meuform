@@ -1,4 +1,8 @@
 use anyhow::Result;
+use std::sync::Arc;
+
+pub type DynHasher = Arc<dyn Hasher>;
+pub type DynTokenizer = Arc<dyn Tokenizer>;
 
 pub trait Hasher: Send + Sync {
     fn hash(&self, plaintext: String) -> Result<String>;

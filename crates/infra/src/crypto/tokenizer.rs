@@ -1,21 +1,8 @@
-use anyhow::{Result, anyhow};
-use bcrypt::{DEFAULT_COST, hash, verify};
+use anyhow::Result;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
-use protocols::{Hasher, Tokenizer};
+use protocols::Tokenizer;
 use serde::{Deserialize, Serialize};
-
-pub struct BcryptHasher;
-
-impl Hasher for BcryptHasher {
-    fn hash(&self, plaintext: String) -> Result<String> {
-        hash(plaintext, DEFAULT_COST).map_err(|e| anyhow!("Failed to hash password: {}", e))
-    }
-
-    fn compare(&self, plaintext: String, digest: String) -> Result<bool> {
-        verify(plaintext, &digest).map_err(|e| anyhow!("Failed to verify password: {}", e))
-    }
-}
 
 pub struct JwtTokenizer {
     secret: Vec<u8>,
