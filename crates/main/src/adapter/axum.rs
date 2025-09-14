@@ -9,7 +9,7 @@ use presentation::{DynController, HttpError, HttpRequest, HttpResponse};
 use serde_json::json;
 use std::collections::HashMap;
 
-pub fn adapt(
+pub fn controller(
     controller: DynController,
 ) -> impl Fn(
     Path<HashMap<String, String>>,

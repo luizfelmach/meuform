@@ -1,5 +1,3 @@
 pub mod controller;
-mod infra;
+pub mod infra;
 pub mod usecase;
-
-pub use infra::*;
