@@ -1,6 +1,7 @@
 use crate::HttpError;
 use serde::de::DeserializeOwned;
 use std::collections::HashMap;
+use validator::Validate;
 
 pub struct HttpRequest {
     pub body: Vec<u8>,
@@ -10,14 +11,24 @@ pub struct HttpRequest {
 }
 
 impl HttpRequest {
-    pub fn json<T: DeserializeOwned>(&self) -> Result<T, HttpError> {
+    pub fn json<T>(&self) -> Result<T, HttpError>
+    where
+        T: DeserializeOwned + Validate,
+    {
         if self.body.is_empty() {
             return Err(HttpError::InvalidInput(
-                "Empty request body: expected JSON".to_string(),
+                "Empty request body, but expected JSON".into(),
             ));
         }
 
-        serde_json::from_slice(&self.body).map_err(|e| HttpError::InvalidInput(e.to_string()))
+        let value: T = serde_json::from_slice(&self.body)
+            .map_err(|e| HttpError::InvalidInput(format!("Invalid JSON body: {}", e)))?;
+
+        value
+            .validate()
+            .map_err(|e| HttpError::InvalidInput(e.to_string()))?;
+
+        Ok(value)
     }
 
     pub fn header(&self, key: &str) -> Result<String, HttpError> {

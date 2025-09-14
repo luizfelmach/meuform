@@ -1,58 +1,48 @@
 use anyhow::Result;
 use domain::{Customer, CustomerId};
+use std::sync::Arc;
+
+pub type DynAuthCustomer = Arc<dyn AuthCustomer>;
+pub type DynCreateCustomer = Arc<dyn CreateCustomer>;
+pub type DynGetCustomer = Arc<dyn GetCustomer>;
+pub type DynUpdateCustomer = Arc<dyn UpdateCustomer>;
+pub type DynDeleteCustomer = Arc<dyn DeleteCustomer>;
+pub type DynForgotPasswordCustomer = Arc<dyn ForgotPasswordCustomer>;
+pub type DynUpdatePasswordCustomer = Arc<dyn UpdatePasswordCustomer>;
 
 #[async_trait::async_trait]
-pub trait AuthCustomer {
-    async fn execute(&self, data: AuthCustomerInput) -> Result<AuthCustomerOutput>;
+pub trait AuthCustomer: Send + Sync {
+    async fn execute(&self, email: &String, password: &String) -> Result<String>;
 }
 
 #[async_trait::async_trait]
-pub trait CreateCustomer {
-    async fn execute(&self, data: CreateCustomerInput) -> Result<CreateCustomerOutput>;
+pub trait CreateCustomer: Send + Sync {
+    async fn execute(&self, name: &String, email: &String, password: &String) -> Result<()>;
 }
 
 #[async_trait::async_trait]
-pub trait GetCustomer {
+pub trait GetCustomer: Send + Sync {
     async fn execute(&self, data: GetCustomerInput) -> Result<GetCustomerOutput>;
 }
 
 #[async_trait::async_trait]
-pub trait UpdateCustomer {
+pub trait UpdateCustomer: Send + Sync {
     async fn execute(&self, data: UpdateCustomerInput) -> Result<UpdateCustomerOutput>;
 }
 
 #[async_trait::async_trait]
-pub trait DeleteCustomer {
+pub trait DeleteCustomer: Send + Sync {
     async fn execute(&self, data: DeleteCustomerInput) -> Result<()>;
 }
 
 #[async_trait::async_trait]
-pub trait ForgotPasswordCustomer {
+pub trait ForgotPasswordCustomer: Send + Sync {
     async fn execute(&self, data: ForgotPasswordCustomerInput) -> Result<()>;
 }
 
 #[async_trait::async_trait]
-pub trait UpdatePasswordCustomer {
+pub trait UpdatePasswordCustomer: Send + Sync {
     async fn execute(&self, data: UpdatePasswordCustomerInput) -> Result<()>;
-}
-
-pub struct AuthCustomerInput {
-    pub email: String,
-    pub password: String,
-}
-
-pub struct AuthCustomerOutput {
-    pub token: String,
-}
-
-pub struct CreateCustomerInput {
-    pub name: String,
-    pub email: String,
-    pub password: String,
-}
-
-pub struct CreateCustomerOutput {
-    pub customer: Customer,
 }
 
 pub struct GetCustomerInput {
