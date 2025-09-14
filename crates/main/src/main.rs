@@ -5,6 +5,8 @@ use axum::{Router, routing::post};
 
 #[tokio::main]
 async fn main() {
+    factory::infra::repository::init_mongo().await;
+
     let signin = factory::controller::auth::signin();
     let signup = factory::controller::auth::signup();
 

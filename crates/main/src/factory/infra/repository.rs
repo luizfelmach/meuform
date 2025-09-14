@@ -5,37 +5,39 @@ use infra::{
 use protocols::{
     DynCustomerRepository, DynFlowRepository, DynFormRepository, DynSubmissionRepository,
 };
-use std::sync::{Arc, LazyLock};
-use tokio::runtime::Runtime;
+use std::sync::Arc;
+use tokio::sync::OnceCell;
 
-static RUNTIME: LazyLock<Runtime> =
-    LazyLock::new(|| Runtime::new().expect("failed to create Tokio runtime"));
+static MONGO: OnceCell<Arc<MongoRepository>> = OnceCell::const_new();
 
-static MONGO: LazyLock<Arc<MongoRepository>> = LazyLock::new(|| {
+pub async fn init_mongo() {
     let uri = "mongodb://localhost:27017".into();
     let db = "meuform".into();
-    let repo = RUNTIME
-        .block_on(MongoRepository::new(&uri, &db))
-        .expect("failed to init mongo");
-    Arc::new(repo)
-});
+
+    let repo = MongoRepository::new(&uri, &db).await.unwrap();
+    let _ = MONGO.set(Arc::new(repo));
+}
+
+pub fn mongo() -> Arc<MongoRepository> {
+    MONGO.get().expect("mongo needs to be initialized").clone()
+}
 
 pub fn customer() -> DynCustomerRepository {
-    let repository = CustomerRepositoryImpl::new(MONGO.clone());
+    let repository = CustomerRepositoryImpl::new(mongo());
     return Arc::new(repository);
 }
 
 pub fn form() -> DynFormRepository {
-    let repository = FormRepositoryImpl::new(MONGO.clone());
+    let repository = FormRepositoryImpl::new(mongo());
     return Arc::new(repository);
 }
 
 pub fn flow() -> DynFlowRepository {
-    let repository = FlowRepositoryImpl::new(MONGO.clone());
+    let repository = FlowRepositoryImpl::new(mongo());
     return Arc::new(repository);
 }
 
 pub fn submission() -> DynSubmissionRepository {
-    let repository = SubmissionRepositoryImpl::new(MONGO.clone());
+    let repository = SubmissionRepositoryImpl::new(mongo());
     return Arc::new(repository);
 }
