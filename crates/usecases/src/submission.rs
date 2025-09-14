@@ -14,52 +14,52 @@ pub type DynGetSubmission = Arc<dyn GetSubmission>;
 pub type DynListSubmissions = Arc<dyn ListSubmissions>;
 
 #[async_trait::async_trait]
-pub trait StartSubmission {
+pub trait StartSubmission: Send + Sync {
     async fn execute(&self, slug: &String) -> Result<Submission>;
 }
 
 #[async_trait::async_trait]
-pub trait SubmitAnswerSubmission {
+pub trait SubmitAnswerSubmission: Send + Sync {
     async fn execute(&self, id: &SubmissionId, answer: Answer) -> Result<()>;
 }
 
 #[async_trait::async_trait]
-pub trait GoNextSubmission {
+pub trait GoNextSubmission: Send + Sync {
     async fn execute(&self, id: &SubmissionId) -> Result<()>;
 }
 
 #[async_trait::async_trait]
-pub trait GoBackSubmission {
+pub trait GoBackSubmission: Send + Sync {
     async fn execute(&self, id: &SubmissionId) -> Result<()>;
 }
 
 #[async_trait::async_trait]
-pub trait IsCompletedSubmission {
+pub trait IsCompletedSubmission: Send + Sync {
     async fn execute(&self, id: &SubmissionId) -> Result<bool>;
 }
 
 #[async_trait::async_trait]
-pub trait ScreenSubmission {
+pub trait ScreenSubmission: Send + Sync {
     async fn execute(&self, id: &SubmissionId) -> Result<Screen>;
 }
 
 #[async_trait::async_trait]
-pub trait CanGoBackSubmission {
+pub trait CanGoBackSubmission: Send + Sync {
     async fn execute(&self, id: &SubmissionId) -> Result<bool>;
 }
 
 #[async_trait::async_trait]
-pub trait CanGoNextSubmission {
+pub trait CanGoNextSubmission: Send + Sync {
     async fn execute(&self, id: &SubmissionId) -> Result<bool>;
 }
 
 #[async_trait::async_trait]
-pub trait GetSubmission {
+pub trait GetSubmission: Send + Sync {
     async fn execute(&self, id: &SubmissionId, customer_id: &CustomerId) -> Result<Submission>;
 }
 
 #[async_trait::async_trait]
-pub trait ListSubmissions {
+pub trait ListSubmissions: Send + Sync {
     async fn execute(
         &self,
         form_id: &FormId,

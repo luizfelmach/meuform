@@ -4,7 +4,7 @@ members = [
     "crates/protocols",
     "crates/infra",
     "crates/usecases",
-    # "crates/data",
+    "crates/data",
     "crates/presentation",
     "crates/main",
 ]

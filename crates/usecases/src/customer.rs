@@ -33,7 +33,7 @@ pub trait GetCustomer: Send + Sync {
 
 #[async_trait::async_trait]
 pub trait UpdateCustomer: Send + Sync {
-    async fn execute(&self, data: UpdateCustomerInput) -> Result<()>;
+    async fn execute(&self, data: UpdateCustomerInput) -> Result<CustomerWithoutPassword>;
 }
 
 #[async_trait::async_trait]

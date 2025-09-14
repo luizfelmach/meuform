@@ -10,7 +10,7 @@ pub type DynListForms = Arc<dyn ListForms>;
 pub type DynUpdateFormFlow = Arc<dyn UpdateFormFlow>;
 
 #[async_trait::async_trait]
-pub trait CreateForm {
+pub trait CreateForm: Send + Sync {
     async fn execute(
         &self,
         name: &String,
@@ -21,22 +21,22 @@ pub trait CreateForm {
 }
 
 #[async_trait::async_trait]
-pub trait GetForm {
+pub trait GetForm: Send + Sync {
     async fn execute(&self, id: &FormId, customer_id: &CustomerId) -> Result<Form>;
 }
 
 #[async_trait::async_trait]
-pub trait UpdateForm {
+pub trait UpdateForm: Send + Sync {
     async fn execute(&self, data: UpdateFormInput) -> Result<Form>;
 }
 
 #[async_trait::async_trait]
-pub trait DeleteForm {
+pub trait DeleteForm: Send + Sync {
     async fn execute(&self, id: &FormId, customer_id: &CustomerId) -> Result<()>;
 }
 
 #[async_trait::async_trait]
-pub trait ListForms {
+pub trait ListForms: Send + Sync {
     async fn execute(
         &self,
         customer_id: CustomerId,
@@ -46,8 +46,8 @@ pub trait ListForms {
 }
 
 #[async_trait::async_trait]
-pub trait UpdateFormFlow {
-    async fn execute(&self, id: FormId, customer_id: CustomerId, flow_id: &FlowId) -> Result<()>;
+pub trait UpdateFormFlow: Send + Sync {
+    async fn execute(&self, id: FormId, customer_id: CustomerId, flow_id: &FlowId) -> Result<Form>;
 }
 
 pub struct UpdateFormInput {

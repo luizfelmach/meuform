@@ -2,12 +2,22 @@ mod adapters;
 
 use adapters::axum::adapt;
 use axum::{Router, routing::post};
+use data::{AuthCustomerImpl, CreateCustomerImpl};
 use presentation::{SignInController, SignUpController, controller};
+use usecases::usecase;
 
 #[tokio::main]
 async fn main() {
-    let signin_controller = controller!(SignInController);
-    let signup_controller = controller!(SignUpController);
+    let create_customer = usecase!(CreateCustomerImpl);
+    let auth_customer = usecase!(AuthCustomerImpl);
+
+    let signin_controller = controller!(SignInController {
+        auth: auth_customer.clone()
+    });
+    let signup_controller = controller!(SignUpController {
+        auth: auth_customer.clone(),
+        create: create_customer
+    });
 
     let app = Router::new()
         .route("/signin", post(adapt(signin_controller)))

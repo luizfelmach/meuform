@@ -41,6 +41,17 @@ impl Graph {
     }
 }
 
+impl Default for Graph {
+    fn default() -> Self {
+        Self {
+            nodes: HashMap::new(),
+            edges: HashMap::new(),
+            start: 1,
+            end: Vec::new(),
+        }
+    }
+}
+
 impl Graph {
     fn validate(&self) -> Result<()> {
         if !self.nodes.contains_key(&self.start) {

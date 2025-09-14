@@ -4,11 +4,11 @@ use usecases::{DynAuthCustomer, DynCreateCustomer};
 use validator::Validate;
 
 pub struct SignInController {
-    auth: DynAuthCustomer,
+    pub auth: DynAuthCustomer,
 }
 pub struct SignUpController {
-    auth: DynAuthCustomer,
-    create: DynCreateCustomer,
+    pub auth: DynAuthCustomer,
+    pub create: DynCreateCustomer,
 }
 
 #[async_trait::async_trait]
