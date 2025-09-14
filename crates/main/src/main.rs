@@ -1,6 +1,7 @@
-mod adapters;
+mod adapter;
+mod factory;
 
-use adapters::axum::adapt;
+use adapter::axum::adapt;
 use axum::{Router, routing::post};
 use data::{AuthCustomerImpl, CreateCustomerImpl};
 use presentation::{SignInController, SignUpController, controller};
