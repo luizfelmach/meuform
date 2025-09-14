@@ -1,5 +1,6 @@
-use anyhow::Result;
 use std::sync::Arc;
+
+use domain::Result;
 
 pub type DynHasher = Arc<dyn Hasher>;
 pub type DynTokenizer = Arc<dyn Tokenizer>;

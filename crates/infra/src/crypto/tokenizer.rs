@@ -1,5 +1,5 @@
-use anyhow::Result;
 use chrono::{Duration, Utc};
+use domain::{InfraError, Result};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use protocols::Tokenizer;
 use serde::{Deserialize, Serialize};
@@ -40,7 +40,8 @@ impl Tokenizer for JwtTokenizer {
             &Header::default(),
             &claims,
             &EncodingKey::from_secret(&self.secret),
-        )?;
+        )
+        .map_err(|e| InfraError::EncryptionError(e.to_string()))?;
 
         Ok(token)
     }
@@ -50,7 +51,8 @@ impl Tokenizer for JwtTokenizer {
             &ciphertext,
             &DecodingKey::from_secret(&self.secret),
             &Validation::default(),
-        )?;
+        )
+        .map_err(|e| InfraError::DecryptionError(e.to_string()))?;
 
         Ok(data.claims.sub)
     }

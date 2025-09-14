@@ -1,6 +1,5 @@
 use crate::MongoRepository;
-use anyhow::Result;
-use domain::{FormId, Pagination, Submission, SubmissionId};
+use domain::{FormId, InfraError, Pagination, Result, Submission, SubmissionId};
 use futures::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use protocols::SubmissionRepository;
@@ -23,28 +22,46 @@ impl SubmissionRepository for SubmissionRepositoryImpl {
     }
 
     async fn find_by_id(&self, id: &SubmissionId) -> Result<Option<Submission>> {
-        let oid = ObjectId::parse_str(id)?;
+        let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
-        let data = self.mongo.submission.find_one(filter).await?;
+        let data = self
+            .mongo
+            .submission
+            .find_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data)
     }
 
     async fn save(&self, data: &Submission) -> Result<Submission> {
-        let _ = self.mongo.submission.insert_one(data).await?;
+        let _ = self
+            .mongo
+            .submission
+            .insert_one(data)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data.clone())
     }
 
     async fn update(&self, data: &Submission) -> Result<Submission> {
-        let oid = ObjectId::parse_str(data.id.clone())?;
+        let oid = ObjectId::parse_str(data.id.clone()).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": &oid };
-        self.mongo.submission.replace_one(filter, data).await?;
+        self.mongo
+            .submission
+            .replace_one(filter, data)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data.clone())
     }
 
     async fn delete(&self, id: &SubmissionId) -> Result<()> {
-        let oid = ObjectId::parse_str(id)?;
+        let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
-        self.mongo.submission.delete_one(filter).await?;
+        self.mongo
+            .submission
+            .delete_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(())
     }
 
@@ -58,9 +75,14 @@ impl SubmissionRepository for SubmissionRepositoryImpl {
             .find(filter)
             .limit(limit as i64)
             .skip(offset as u64)
-            .await?;
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
 
-        let result = cursor.try_collect().await?;
+        let result = cursor
+            .try_collect()
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
+
         Ok(result)
     }
 }

@@ -1,6 +1,5 @@
-use anyhow::Result;
 use domain::{
-    Customer, CustomerId, Flow, FlowId, Form, FormId, Pagination, Submission, SubmissionId,
+    Customer, CustomerId, Flow, FlowId, Form, FormId, Pagination, Result, Submission, SubmissionId,
 };
 use std::sync::Arc;
 

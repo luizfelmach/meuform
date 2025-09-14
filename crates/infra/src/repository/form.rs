@@ -1,6 +1,5 @@
 use crate::MongoRepository;
-use anyhow::Result;
-use domain::{CustomerId, Form, FormId, Pagination};
+use domain::{CustomerId, Form, FormId, InfraError, Pagination, Result};
 use futures::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use protocols::FormRepository;
@@ -23,34 +22,57 @@ impl FormRepository for FormRepositoryImpl {
     }
 
     async fn find_by_id(&self, id: &FormId) -> Result<Option<Form>> {
-        let oid = ObjectId::parse_str(id)?;
+        let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
-        let data = self.mongo.form.find_one(filter).await?;
+        let data = self
+            .mongo
+            .form
+            .find_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data)
     }
 
     async fn find_by_slug(&self, slug: &String) -> Result<Option<Form>> {
         let filter = doc! { "slug": slug };
-        let data = self.mongo.form.find_one(filter).await?;
+        let data = self
+            .mongo
+            .form
+            .find_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data)
     }
 
     async fn save(&self, data: &Form) -> Result<Form> {
-        let _ = self.mongo.form.insert_one(data).await?;
+        let _ = self
+            .mongo
+            .form
+            .insert_one(data)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data.clone())
     }
 
     async fn update(&self, data: &Form) -> Result<Form> {
-        let oid = ObjectId::parse_str(data.id.clone())?;
+        let oid = ObjectId::parse_str(data.id.clone()).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": &oid };
-        self.mongo.form.replace_one(filter, data).await?;
+        self.mongo
+            .form
+            .replace_one(filter, data)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data.clone())
     }
 
     async fn delete(&self, id: &FormId) -> Result<()> {
-        let oid = ObjectId::parse_str(id)?;
+        let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
-        self.mongo.form.delete_one(filter).await?;
+        self.mongo
+            .form
+            .delete_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(())
     }
 
@@ -64,9 +86,14 @@ impl FormRepository for FormRepositoryImpl {
             .find(filter)
             .limit(limit as i64)
             .skip(offset as u64)
-            .await?;
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
 
-        let result = cursor.try_collect().await?;
+        let result = cursor
+            .try_collect()
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
+
         Ok(result)
     }
 }

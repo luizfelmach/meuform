@@ -1,6 +1,5 @@
 use crate::MongoRepository;
-use anyhow::Result;
-use domain::{Customer, CustomerId};
+use domain::{Customer, CustomerId, InfraError, Result};
 use mongodb::bson::{doc, oid::ObjectId};
 use protocols::CustomerRepository;
 use std::sync::Arc;
@@ -22,34 +21,57 @@ impl CustomerRepository for CustomerRepositoryImpl {
     }
 
     async fn find_by_id(&self, id: &CustomerId) -> Result<Option<Customer>> {
-        let oid = ObjectId::parse_str(id)?;
+        let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
-        let data = self.mongo.customer.find_one(filter).await?;
+        let data = self
+            .mongo
+            .customer
+            .find_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data)
     }
 
     async fn find_by_email(&self, email: &String) -> Result<Option<Customer>> {
         let filter = doc! { "email": email };
-        let data = self.mongo.customer.find_one(filter).await?;
+        let data = self
+            .mongo
+            .customer
+            .find_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data)
     }
 
     async fn save(&self, data: &Customer) -> Result<Customer> {
-        let _ = self.mongo.customer.insert_one(data).await?;
+        let _ = self
+            .mongo
+            .customer
+            .insert_one(data)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data.clone())
     }
 
     async fn update(&self, data: &Customer) -> Result<Customer> {
-        let oid = ObjectId::parse_str(data.id.clone())?;
+        let oid = ObjectId::parse_str(data.id.clone()).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": &oid };
-        self.mongo.customer.replace_one(filter, data).await?;
+        self.mongo
+            .customer
+            .replace_one(filter, data)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data.clone())
     }
 
     async fn delete(&self, id: &CustomerId) -> Result<()> {
-        let oid = ObjectId::parse_str(id)?;
+        let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
-        self.mongo.customer.delete_one(filter).await?;
+        self.mongo
+            .customer
+            .delete_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(())
     }
 }

@@ -1,5 +1,4 @@
-use anyhow::Result;
-use domain::{Customer, Flow, Form, Submission};
+use domain::{Customer, Flow, Form, InfraError, Result, Submission};
 use mongodb::{Client, Collection, options::ClientOptions};
 
 pub struct MongoRepository {
@@ -11,8 +10,10 @@ pub struct MongoRepository {
 
 impl MongoRepository {
     pub async fn new(uri: &String, db: &String) -> Result<Self> {
-        let options = ClientOptions::parse(uri).await?;
-        let client = Client::with_options(options)?;
+        let options = ClientOptions::parse(uri)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
+        let client = Client::with_options(options).map_err(|_| InfraError::DatabaseError)?;
         let db = client.database(db);
 
         let mongo = Self {

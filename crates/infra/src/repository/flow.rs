@@ -1,6 +1,5 @@
 use crate::MongoRepository;
-use anyhow::Result;
-use domain::{Flow, FlowId};
+use domain::{Flow, FlowId, InfraError, Result};
 use mongodb::bson::{doc, oid::ObjectId};
 use protocols::FlowRepository;
 use std::sync::Arc;
@@ -22,21 +21,35 @@ impl FlowRepository for FlowRepositoryImpl {
     }
 
     async fn find_by_id(&self, id: &FlowId) -> Result<Option<Flow>> {
-        let oid = ObjectId::parse_str(id)?;
+        let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
-        let data = self.mongo.flow.find_one(filter).await?;
+        let data = self
+            .mongo
+            .flow
+            .find_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data)
     }
 
     async fn save(&self, data: &Flow) -> Result<Flow> {
-        let _ = self.mongo.flow.insert_one(data).await?;
+        let _ = self
+            .mongo
+            .flow
+            .insert_one(data)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(data.clone())
     }
 
     async fn delete(&self, id: &FlowId) -> Result<()> {
-        let oid = ObjectId::parse_str(id)?;
+        let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
-        self.mongo.flow.delete_one(filter).await?;
+        self.mongo
+            .flow
+            .delete_one(filter)
+            .await
+            .map_err(|_| InfraError::DatabaseError)?;
         Ok(())
     }
 }
