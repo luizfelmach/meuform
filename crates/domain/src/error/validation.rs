@@ -1,23 +1,5 @@
 use crate::NodeId;
-
 use chrono::{DateTime, Utc};
-
-pub type Result<T> = std::result::Result<T, AppError>;
-
-#[derive(thiserror::Error, Debug)]
-pub enum AppError {
-    #[error("Erro de submissão: {0}")]
-    Submission(#[from] SubmissionError),
-
-    #[error("Erro de tela: {0}")]
-    Screen(#[from] ScreenError),
-
-    #[error("Erro no grafo: {0}")]
-    Graph(#[from] GraphError),
-
-    #[error("Erro de infraestrutura: {0}")]
-    Infra(#[from] InfraError),
-}
 
 #[derive(thiserror::Error, Debug)]
 pub enum SubmissionError {
@@ -101,31 +83,4 @@ pub enum ScreenError {
 
     #[error("Tipo de condição incompatível com o campo.")]
     ConditionTypeMismatch,
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum InfraError {
-    #[error("Erro de conexão com o banco de dados")]
-    DatabaseError,
-
-    #[error("Falha ao gerar UUID: {0}")]
-    UuidGenerationError(String),
-
-    #[error("Falha ao fazer parse de UUID")]
-    UuidParseError,
-
-    #[error("Erro de rede/serviço externo: {0}")]
-    ExternalServiceError(String),
-
-    #[error("Falha ao gerar hash de senha: {0}")]
-    HashError(String),
-
-    #[error("Falha na comparação de senha: {0}")]
-    CompareError(String),
-
-    #[error("Falha ao criar token: {0}")]
-    EncryptionError(String),
-
-    #[error("Falha ao descriptografar token: {0}")]
-    DecryptionError(String),
 }
