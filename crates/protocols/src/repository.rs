@@ -1,56 +1,49 @@
 use anyhow::Result;
-use domain::{Form, Submission};
+use domain::{
+    Customer, CustomerId, Flow, FlowId, Form, FormId, Pagination, Submission, SubmissionId,
+};
+use std::sync::Arc;
 
-pub trait GenerateUuid: Send + Sync {
-    fn generate_uuid(&self) -> Result<String>;
+pub type DynCustomerRepository = Arc<dyn CustomerRepository>;
+pub type DynFormRepository = Arc<dyn FormRepository>;
+pub type DynSubmissionRepository = Arc<dyn SubmissionRepository>;
+pub type DynFlowRepository = Arc<dyn FlowRepository>;
+
+#[async_trait::async_trait]
+pub trait CustomerRepository: Send + Sync {
+    async fn uuid(&self) -> Result<CustomerId>;
+    async fn find_by_id(&self, id: &CustomerId) -> Result<Option<Customer>>;
+    async fn find_by_email(&self, email: &String) -> Result<Option<Customer>>;
+    async fn save(&self, data: &Customer) -> Result<Customer>;
+    async fn update(&self, data: &Customer) -> Result<Customer>;
+    async fn delete(&self, id: &CustomerId) -> Result<()>;
 }
 
 #[async_trait::async_trait]
-pub trait FindById<T>: Send + Sync {
-    async fn find_by_id(&self, id: &String) -> Result<Option<T>>;
+pub trait FormRepository: Send + Sync {
+    async fn uuid(&self) -> Result<FormId>;
+    async fn find_by_id(&self, id: &FormId) -> Result<Option<Form>>;
+    async fn find_by_slug(&self, slug: &String) -> Result<Option<Form>>;
+    async fn save(&self, data: &Form) -> Result<Form>;
+    async fn update(&self, data: &Form) -> Result<Form>;
+    async fn delete(&self, id: &FormId) -> Result<()>;
+    async fn list(&self, customer_id: &CustomerId, pag: Option<Pagination>) -> Result<Vec<Form>>;
 }
 
 #[async_trait::async_trait]
-pub trait FindByEmail<T>: Send + Sync {
-    async fn find_by_email(&self, email: &String) -> Result<Option<T>>;
+pub trait SubmissionRepository: Send + Sync {
+    async fn uuid(&self) -> Result<SubmissionId>;
+    async fn find_by_id(&self, id: &SubmissionId) -> Result<Option<Submission>>;
+    async fn save(&self, data: &Submission) -> Result<Submission>;
+    async fn update(&self, data: &Submission) -> Result<Submission>;
+    async fn delete(&self, id: &SubmissionId) -> Result<()>;
+    async fn list(&self, form_id: &FormId, pag: Option<Pagination>) -> Result<Vec<Submission>>;
 }
 
 #[async_trait::async_trait]
-pub trait FindBySlug<T>: Send + Sync {
-    async fn find_by_slug(&self, slug: &String) -> Result<Option<T>>;
-}
-
-#[async_trait::async_trait]
-pub trait Save<T>: Send + Sync {
-    async fn save(&self, data: T) -> Result<T>;
-}
-
-#[async_trait::async_trait]
-pub trait Update<T>: Send + Sync {
-    async fn update(&self, data: T) -> Result<T>;
-}
-
-#[async_trait::async_trait]
-pub trait DeleteById<T>: Send + Sync {
-    async fn delete_by_id(&self, id: &String) -> Result<()>;
-}
-
-#[async_trait::async_trait]
-pub trait ListForms: Send + Sync {
-    async fn list_forms(
-        &self,
-        customer_id: &String,
-        limit: Option<usize>,
-        offset: Option<usize>,
-    ) -> Result<Vec<Form>>;
-}
-
-#[async_trait::async_trait]
-pub trait ListSubmissions: Send + Sync {
-    async fn list_submissions(
-        &self,
-        form_id: &String,
-        limit: Option<usize>,
-        offset: Option<usize>,
-    ) -> Result<Vec<Submission>>;
+pub trait FlowRepository: Send + Sync {
+    async fn uuid(&self) -> Result<FlowId>;
+    async fn find_by_id(&self, id: &FlowId) -> Result<Option<Flow>>;
+    async fn save(&self, data: &Flow) -> Result<Flow>;
+    async fn delete(&self, id: &FlowId) -> Result<()>;
 }
