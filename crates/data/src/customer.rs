@@ -1,11 +1,16 @@
 use anyhow::Result;
 use domain::{Customer, CustomerId, CustomerWithoutPassword};
+use protocols::{DynCustomerRepository, DynHasher, DynTokenizer};
 use usecases::{
     AuthCustomer, AuthenticatedCustomer, CreateCustomer, DeleteCustomer, ForgotPasswordCustomer,
     GetCustomer, UpdateCustomer, UpdateCustomerInput, UpdatePasswordCustomer,
 };
 
-pub struct AuthCustomerImpl;
+pub struct AuthCustomerImpl {
+    pub customer: DynCustomerRepository,
+    pub tokenizer: DynTokenizer,
+}
+
 pub struct CreateCustomerImpl;
 pub struct GetCustomerImpl;
 pub struct UpdateCustomerImpl;
@@ -16,7 +21,9 @@ pub struct AuthenticatedCustomerImpl;
 
 #[async_trait::async_trait]
 impl AuthCustomer for AuthCustomerImpl {
-    async fn execute(&self, _email: &String, _password: &String) -> Result<String> {
+    async fn execute(&self, email: &String, _password: &String) -> Result<String> {
+        let customer = self.customer.find_by_email(email).await?;
+
         Ok("fake_token".into())
     }
 }
