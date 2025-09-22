@@ -36,7 +36,7 @@ impl CreateCustomer for CreateCustomerImpl {
         email: &String,
         password: &String,
     ) -> Result<CustomerWithoutPassword> {
-        let customer = Customer::new(
+        let customer = Customer::create(
             "fake_id".into(),
             name.clone(),
             email.clone(),
@@ -49,7 +49,7 @@ impl CreateCustomer for CreateCustomerImpl {
 #[async_trait::async_trait]
 impl GetCustomer for GetCustomerImpl {
     async fn execute(&self, id: &CustomerId) -> Result<CustomerWithoutPassword> {
-        let customer = Customer::new(
+        let customer = Customer::create(
             id.clone(),
             "fake_name".into(),
             "fake_email".into(),
@@ -63,7 +63,7 @@ impl GetCustomer for GetCustomerImpl {
 #[async_trait::async_trait]
 impl UpdateCustomer for UpdateCustomerImpl {
     async fn execute(&self, data: UpdateCustomerInput) -> Result<CustomerWithoutPassword> {
-        let customer = Customer::new(
+        let customer = Customer::create(
             data.id.clone(),
             "fake_name".into(),
             "fake_email".into(),
@@ -94,7 +94,7 @@ impl UpdatePasswordCustomer for UpdatePasswordCustomerImpl {
         _token: &String,
         _password: &String,
     ) -> Result<CustomerWithoutPassword> {
-        let customer = Customer::new(
+        let customer = Customer::create(
             "fake_id".into(),
             "fake_name".into(),
             "fake_email".into(),

@@ -1,14 +1,17 @@
-use crate::{CustomerId, FlowId, Graph};
+pub mod condition;
+pub mod graph;
+pub mod screen;
+
+use crate::{CustomerId, FlowId, graph::Graph};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Flow {
-    #[serde(rename = "_id")]
     pub id: FlowId,
-    pub graph: Graph,
     pub customer_id: CustomerId,
+    pub graph: Graph,
     pub created_at: DateTime<Utc>,
 }
 
