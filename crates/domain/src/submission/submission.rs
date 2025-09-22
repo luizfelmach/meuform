@@ -11,6 +11,16 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+use crate::NodeId;
+
+pub type SubmissionResult<T> = Result<T, SubmissionError>;
+
+pub enum SubmissionError {
+    AlreadyCompleted,
+    NoPreviousNode,
+    SameNodeNavigation(NodeId),
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Submission {
     pub id: SubmissionId,
