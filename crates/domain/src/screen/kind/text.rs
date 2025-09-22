@@ -1,0 +1,42 @@
+use serde::{Deserialize, Serialize};
+
+use crate::{
+    answer::Answer,
+    condition::Condition,
+    screen::{Error, Result, Screenable},
+};
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct TextScreen {
+    pub title: String,
+    pub description: Option<String>,
+    pub placeholder: Option<String>,
+    pub min_length: Option<u32>,
+    pub max_length: Option<u32>,
+    pub required: bool,
+}
+
+impl TextScreen {
+    pub fn required(&self) -> bool {
+        return self.required;
+    }
+}
+
+impl Screenable for TextScreen {
+    fn accepts(&self, condition: &Condition) -> Result<()> {
+        use Error::*;
+
+        match condition {
+            Condition::Text(_) => Ok(()),
+            _ => Err(ConditionTypeMismatch),
+        }
+    }
+
+    fn check(&self, answer: &Answer) -> Result<()> {
+        Ok(())
+    }
+
+    fn evaluate(&self, answer: &Answer) -> Result<()> {
+        Ok(())
+    }
+}
