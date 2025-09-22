@@ -23,6 +23,12 @@ pub struct Submission {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+pub enum SubmissionStatus {
+    InProgress(NodeId),
+    Completed,
+}
+
 impl Submission {
     pub fn new(id: SubmissionId, form_id: FormId, flow_id: FlowId, node: NodeId) -> Self {
         let now = Utc::now();
