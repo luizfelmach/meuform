@@ -1,5 +1,5 @@
 use chrono::{Duration, Utc};
-use domain::{InfraError, Result};
+use domain::{InfraError, EvaluateAnswerResult};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use protocols::Tokenizer;
 use serde::{Deserialize, Serialize};
@@ -26,7 +26,7 @@ impl JwtTokenizer {
 }
 
 impl Tokenizer for JwtTokenizer {
-    fn encrypt(&self, plaintext: String) -> Result<String> {
+    fn encrypt(&self, plaintext: String) -> EvaluateAnswerResult<String> {
         let now = Utc::now();
         let exp = (now + Duration::minutes(self.ttl_minutes)).timestamp() as usize;
 
@@ -46,7 +46,7 @@ impl Tokenizer for JwtTokenizer {
         Ok(token)
     }
 
-    fn decrypt(&self, ciphertext: String) -> Result<String> {
+    fn decrypt(&self, ciphertext: String) -> EvaluateAnswerResult<String> {
         let data = decode::<Claims>(
             &ciphertext,
             &DecodingKey::from_secret(&self.secret),

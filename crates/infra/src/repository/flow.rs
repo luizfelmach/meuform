@@ -1,5 +1,5 @@
 use crate::MongoRepository;
-use domain::{Flow, FlowId, InfraError, Result};
+use domain::{Flow, FlowId, InfraError, EvaluateAnswerResult};
 use mongodb::bson::{doc, oid::ObjectId};
 use protocols::FlowRepository;
 use std::sync::Arc;
@@ -16,11 +16,11 @@ impl FlowRepositoryImpl {
 
 #[async_trait::async_trait]
 impl FlowRepository for FlowRepositoryImpl {
-    async fn uuid(&self) -> Result<FlowId> {
+    async fn uuid(&self) -> EvaluateAnswerResult<FlowId> {
         Ok(ObjectId::new().to_string())
     }
 
-    async fn find_by_id(&self, id: &FlowId) -> Result<Option<Flow>> {
+    async fn find_by_id(&self, id: &FlowId) -> EvaluateAnswerResult<Option<Flow>> {
         let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
         let data = self
@@ -32,7 +32,7 @@ impl FlowRepository for FlowRepositoryImpl {
         Ok(data)
     }
 
-    async fn save(&self, data: &Flow) -> Result<Flow> {
+    async fn save(&self, data: &Flow) -> EvaluateAnswerResult<Flow> {
         let _ = self
             .mongo
             .flow
@@ -42,7 +42,7 @@ impl FlowRepository for FlowRepositoryImpl {
         Ok(data.clone())
     }
 
-    async fn delete(&self, id: &FlowId) -> Result<()> {
+    async fn delete(&self, id: &FlowId) -> EvaluateAnswerResult<()> {
         let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
         self.mongo

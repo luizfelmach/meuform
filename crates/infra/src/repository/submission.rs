@@ -1,5 +1,5 @@
 use crate::MongoRepository;
-use domain::{FormId, InfraError, Pagination, Result, Submission, SubmissionId};
+use domain::{FormId, InfraError, Pagination, EvaluateAnswerResult, Submission, SubmissionId};
 use futures::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use protocols::SubmissionRepository;
@@ -17,11 +17,11 @@ impl SubmissionRepositoryImpl {
 
 #[async_trait::async_trait]
 impl SubmissionRepository for SubmissionRepositoryImpl {
-    async fn uuid(&self) -> Result<SubmissionId> {
+    async fn uuid(&self) -> EvaluateAnswerResult<SubmissionId> {
         Ok(ObjectId::new().to_string())
     }
 
-    async fn find_by_id(&self, id: &SubmissionId) -> Result<Option<Submission>> {
+    async fn find_by_id(&self, id: &SubmissionId) -> EvaluateAnswerResult<Option<Submission>> {
         let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
         let data = self
@@ -33,7 +33,7 @@ impl SubmissionRepository for SubmissionRepositoryImpl {
         Ok(data)
     }
 
-    async fn save(&self, data: &Submission) -> Result<Submission> {
+    async fn save(&self, data: &Submission) -> EvaluateAnswerResult<Submission> {
         let _ = self
             .mongo
             .submission
@@ -43,7 +43,7 @@ impl SubmissionRepository for SubmissionRepositoryImpl {
         Ok(data.clone())
     }
 
-    async fn update(&self, data: &Submission) -> Result<Submission> {
+    async fn update(&self, data: &Submission) -> EvaluateAnswerResult<Submission> {
         let oid = ObjectId::parse_str(data.id.clone()).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": &oid };
         self.mongo
@@ -54,7 +54,7 @@ impl SubmissionRepository for SubmissionRepositoryImpl {
         Ok(data.clone())
     }
 
-    async fn delete(&self, id: &SubmissionId) -> Result<()> {
+    async fn delete(&self, id: &SubmissionId) -> EvaluateAnswerResult<()> {
         let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
         self.mongo
@@ -65,7 +65,7 @@ impl SubmissionRepository for SubmissionRepositoryImpl {
         Ok(())
     }
 
-    async fn list(&self, form_id: &FormId, pag: Option<Pagination>) -> Result<Vec<Submission>> {
+    async fn list(&self, form_id: &FormId, pag: Option<Pagination>) -> EvaluateAnswerResult<Vec<Submission>> {
         let Pagination { limit, offset } = pag.unwrap_or_default();
         let filter = doc! { "form_id": form_id };
 

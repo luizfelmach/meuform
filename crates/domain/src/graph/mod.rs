@@ -1,4 +1,4 @@
-use crate::NodeId;
+use crate::{Condition, NodeId, Screen};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

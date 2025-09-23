@@ -1,11 +1,10 @@
+use crate::{
+    AcceptsConditionError, AcceptsConditionResult, Answer, CheckAnswerResult, Condition,
+    Screenable, ValidateAnswerResult,
+};
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-
-use crate::{
-    answer::Answer,
-    condition::Condition,
-    screen::{Error, Result, Screenable},
-};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct DateScreen {
@@ -23,8 +22,8 @@ impl DateScreen {
 }
 
 impl Screenable for DateScreen {
-    fn accepts(&self, condition: &Condition) -> Result<()> {
-        use Error::*;
+    fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()> {
+        use AcceptsConditionError::*;
 
         match condition {
             Condition::Date(_) => Ok(()),
@@ -32,11 +31,11 @@ impl Screenable for DateScreen {
         }
     }
 
-    fn check(&self, answer: &Answer) -> Result<()> {
+    fn validate(&self, _answer: &Answer) -> ValidateAnswerResult<()> {
         Ok(())
     }
 
-    fn evaluate(&self, answer: &Answer) -> Result<()> {
+    fn check(&self, _answer: &Answer) -> CheckAnswerResult<()> {
         Ok(())
     }
 }

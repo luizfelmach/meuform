@@ -1,13 +1,15 @@
-use crate::answer::Answer;
-use crate::condition::Condition;
-use crate::screen::{BooleanScreen, CheckboxScreen, DateScreen, InfoScreen, Result};
-use crate::screen::{NumberScreen, RadioScreen, TextAreaScreen, TextScreen};
+use crate::{
+    AcceptsConditionResult, Answer, BooleanScreen, CheckAnswerResult, CheckboxScreen, Condition,
+    DateScreen, InfoScreen, NumberScreen, RadioScreen, TextAreaScreen, TextScreen,
+    ValidateAnswerResult,
+};
+
 use serde::{Deserialize, Serialize};
 
 pub trait Screenable {
-    fn accepts(&self, condition: &Condition) -> Result<()>;
-    fn check(&self, answer: &Answer) -> Result<()>;
-    fn evaluate(&self, answer: &Answer) -> Result<()>;
+    fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()>;
+    fn validate(&self, answer: &Answer) -> ValidateAnswerResult<()>;
+    fn check(&self, answer: &Answer) -> CheckAnswerResult<()>;
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -23,7 +25,7 @@ pub enum Screen {
 }
 
 impl Screenable for Screen {
-    fn accepts(&self, condition: &Condition) -> Result<()> {
+    fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()> {
         use Screen::*;
 
         match self {
@@ -38,7 +40,22 @@ impl Screenable for Screen {
         }
     }
 
-    fn check(&self, answer: &Answer) -> Result<()> {
+    fn validate(&self, answer: &Answer) -> ValidateAnswerResult<()> {
+        use Screen::*;
+
+        match self {
+            Text(s) => s.validate(answer),
+            TextArea(s) => s.validate(answer),
+            Number(s) => s.validate(answer),
+            Radio(s) => s.validate(answer),
+            Checkbox(s) => s.validate(answer),
+            Date(s) => s.validate(answer),
+            Boolean(s) => s.validate(answer),
+            Info(s) => s.validate(answer),
+        }
+    }
+
+    fn check(&self, answer: &Answer) -> CheckAnswerResult<()> {
         use Screen::*;
 
         match self {
@@ -50,21 +67,6 @@ impl Screenable for Screen {
             Date(s) => s.check(answer),
             Boolean(s) => s.check(answer),
             Info(s) => s.check(answer),
-        }
-    }
-
-    fn evaluate(&self, answer: &Answer) -> Result<()> {
-        use Screen::*;
-
-        match self {
-            Text(s) => s.evaluate(answer),
-            TextArea(s) => s.evaluate(answer),
-            Number(s) => s.evaluate(answer),
-            Radio(s) => s.evaluate(answer),
-            Checkbox(s) => s.evaluate(answer),
-            Date(s) => s.evaluate(answer),
-            Boolean(s) => s.evaluate(answer),
-            Info(s) => s.evaluate(answer),
         }
     }
 }

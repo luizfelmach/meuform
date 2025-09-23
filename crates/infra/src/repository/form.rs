@@ -1,5 +1,5 @@
 use crate::MongoRepository;
-use domain::{CustomerId, Form, FormId, InfraError, Pagination, Result};
+use domain::{CustomerId, Form, FormId, InfraError, Pagination, EvaluateAnswerResult};
 use futures::TryStreamExt;
 use mongodb::bson::{doc, oid::ObjectId};
 use protocols::FormRepository;
@@ -17,11 +17,11 @@ impl FormRepositoryImpl {
 
 #[async_trait::async_trait]
 impl FormRepository for FormRepositoryImpl {
-    async fn uuid(&self) -> Result<FormId> {
+    async fn uuid(&self) -> EvaluateAnswerResult<FormId> {
         Ok(ObjectId::new().to_string())
     }
 
-    async fn find_by_id(&self, id: &FormId) -> Result<Option<Form>> {
+    async fn find_by_id(&self, id: &FormId) -> EvaluateAnswerResult<Option<Form>> {
         let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
         let data = self
@@ -33,7 +33,7 @@ impl FormRepository for FormRepositoryImpl {
         Ok(data)
     }
 
-    async fn find_by_slug(&self, slug: &String) -> Result<Option<Form>> {
+    async fn find_by_slug(&self, slug: &String) -> EvaluateAnswerResult<Option<Form>> {
         let filter = doc! { "slug": slug };
         let data = self
             .mongo
@@ -44,7 +44,7 @@ impl FormRepository for FormRepositoryImpl {
         Ok(data)
     }
 
-    async fn save(&self, data: &Form) -> Result<Form> {
+    async fn save(&self, data: &Form) -> EvaluateAnswerResult<Form> {
         let _ = self
             .mongo
             .form
@@ -54,7 +54,7 @@ impl FormRepository for FormRepositoryImpl {
         Ok(data.clone())
     }
 
-    async fn update(&self, data: &Form) -> Result<Form> {
+    async fn update(&self, data: &Form) -> EvaluateAnswerResult<Form> {
         let oid = ObjectId::parse_str(data.id.clone()).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": &oid };
         self.mongo
@@ -65,7 +65,7 @@ impl FormRepository for FormRepositoryImpl {
         Ok(data.clone())
     }
 
-    async fn delete(&self, id: &FormId) -> Result<()> {
+    async fn delete(&self, id: &FormId) -> EvaluateAnswerResult<()> {
         let oid = ObjectId::parse_str(id).map_err(|_| InfraError::UuidParseError)?;
         let filter = doc! { "_id": oid };
         self.mongo
@@ -76,7 +76,7 @@ impl FormRepository for FormRepositoryImpl {
         Ok(())
     }
 
-    async fn list(&self, customer_id: &CustomerId, pag: Option<Pagination>) -> Result<Vec<Form>> {
+    async fn list(&self, customer_id: &CustomerId, pag: Option<Pagination>) -> EvaluateAnswerResult<Vec<Form>> {
         let Pagination { limit, offset } = pag.unwrap_or_default();
         let filter = doc! { "customer_id": customer_id };
 

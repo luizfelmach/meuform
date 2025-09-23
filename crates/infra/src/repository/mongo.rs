@@ -1,4 +1,4 @@
-use domain::{Customer, Flow, Form, InfraError, Result, Submission};
+use domain::{Customer, Flow, Form, InfraError, EvaluateAnswerResult, Submission};
 use mongodb::{Client, Collection, options::ClientOptions};
 
 pub struct MongoRepository {
@@ -9,7 +9,7 @@ pub struct MongoRepository {
 }
 
 impl MongoRepository {
-    pub async fn new(uri: &String, db: &String) -> Result<Self> {
+    pub async fn new(uri: &String, db: &String) -> EvaluateAnswerResult<Self> {
         let options = ClientOptions::parse(uri)
             .await
             .map_err(|_| InfraError::DatabaseError)?;

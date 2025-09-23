@@ -1,10 +1,9 @@
-use serde::{Deserialize, Serialize};
-
 use crate::{
-    answer::Answer,
-    condition::Condition,
-    screen::{Error, Result, Screenable},
+    AcceptsConditionError, AcceptsConditionResult, Answer, CheckAnswerResult, Condition,
+    Screenable, ValidateAnswerResult,
 };
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct CheckboxScreen {
@@ -23,8 +22,8 @@ impl CheckboxScreen {
 }
 
 impl Screenable for CheckboxScreen {
-    fn accepts(&self, condition: &Condition) -> Result<()> {
-        use Error::*;
+    fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()> {
+        use AcceptsConditionError::*;
 
         match condition {
             Condition::Checkbox(_) => Ok(()),
@@ -32,11 +31,11 @@ impl Screenable for CheckboxScreen {
         }
     }
 
-    fn check(&self, answer: &Answer) -> Result<()> {
+    fn validate(&self, _answer: &Answer) -> ValidateAnswerResult<()> {
         Ok(())
     }
 
-    fn evaluate(&self, answer: &Answer) -> Result<()> {
+    fn check(&self, _answer: &Answer) -> CheckAnswerResult<()> {
         Ok(())
     }
 }

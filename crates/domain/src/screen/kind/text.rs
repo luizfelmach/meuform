@@ -1,31 +1,29 @@
-use serde::{Deserialize, Serialize};
-
 use crate::{
-    answer::Answer,
-    condition::Condition,
-    screen::{Error, Result, Screenable},
+    AcceptsConditionError, AcceptsConditionResult, Answer, CheckAnswerResult, Condition,
+    Screenable, ValidateAnswerResult,
 };
 
+use serde::{Deserialize, Serialize};
+
 #[derive(Clone, Serialize, Deserialize)]
-pub struct TextAreaScreen {
+pub struct TextScreen {
     pub title: String,
     pub description: Option<String>,
     pub placeholder: Option<String>,
-    pub rows: Option<u32>,
     pub min_length: Option<u32>,
     pub max_length: Option<u32>,
     pub required: bool,
 }
 
-impl TextAreaScreen {
+impl TextScreen {
     pub fn required(&self) -> bool {
         return self.required;
     }
 }
 
-impl Screenable for TextAreaScreen {
-    fn accepts(&self, condition: &Condition) -> Result<()> {
-        use Error::*;
+impl Screenable for TextScreen {
+    fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()> {
+        use AcceptsConditionError::*;
 
         match condition {
             Condition::Text(_) => Ok(()),
@@ -33,11 +31,11 @@ impl Screenable for TextAreaScreen {
         }
     }
 
-    fn check(&self, answer: &Answer) -> Result<()> {
+    fn validate(&self, _answer: &Answer) -> ValidateAnswerResult<()> {
         Ok(())
     }
 
-    fn evaluate(&self, answer: &Answer) -> Result<()> {
+    fn check(&self, _answer: &Answer) -> CheckAnswerResult<()> {
         Ok(())
     }
 }
