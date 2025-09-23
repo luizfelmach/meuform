@@ -13,6 +13,7 @@ pub trait Screenable {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(tag = "type", content = "config")]
 pub enum Screen {
     Text(TextScreen),
     TextArea(TextAreaScreen),
