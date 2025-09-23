@@ -1,25 +1,11 @@
-pub mod result;
-pub mod status;
-
 use crate::{
-    Answer, FlowId, FormId, NodeId, SubmissionId,
-    result::{SubmissionError, SubmissionResult},
-    status::SubmissionStatus,
+    Answer, FlowId, FormId, NodeId, SubmissionId, SubmissionOpError, SubmissionOpResult,
+    SubmissionStatus,
 };
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-use crate::NodeId;
-
-pub type SubmissionResult<T> = Result<T, SubmissionError>;
-
-pub enum SubmissionError {
-    AlreadyCompleted,
-    NoPreviousNode,
-    SameNodeNavigation(NodeId),
-}
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Submission {
@@ -31,12 +17,6 @@ pub struct Submission {
     pub answers: HashMap<NodeId, Answer>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub enum SubmissionStatus {
-    InProgress(NodeId),
-    Completed,
 }
 
 impl Submission {
@@ -60,8 +40,8 @@ impl Submission {
         self.updated_at = Utc::now();
     }
 
-    pub fn respond(&mut self, answer: Answer) -> SubmissionResult<()> {
-        use SubmissionError::*;
+    pub fn respond(&mut self, answer: Answer) -> SubmissionOpResult<()> {
+        use SubmissionOpError::*;
         use SubmissionStatus::*;
 
         match self.status {
@@ -74,8 +54,8 @@ impl Submission {
         }
     }
 
-    pub fn withdraw(&mut self, node: &NodeId) -> SubmissionResult<()> {
-        use SubmissionError::*;
+    pub fn withdraw(&mut self, node: &NodeId) -> SubmissionOpResult<()> {
+        use SubmissionOpError::*;
         use SubmissionStatus::*;
 
         match self.status {
@@ -88,8 +68,8 @@ impl Submission {
         }
     }
 
-    pub fn goto(&mut self, node: NodeId) -> SubmissionResult<()> {
-        use SubmissionError::*;
+    pub fn goto(&mut self, node: NodeId) -> SubmissionOpResult<()> {
+        use SubmissionOpError::*;
         use SubmissionStatus::*;
 
         match self.status {
@@ -104,8 +84,8 @@ impl Submission {
         }
     }
 
-    pub fn back(&mut self) -> SubmissionResult<()> {
-        use SubmissionError::*;
+    pub fn back(&mut self) -> SubmissionOpResult<()> {
+        use SubmissionOpError::*;
         use SubmissionStatus::*;
 
         match self.status {
@@ -121,8 +101,8 @@ impl Submission {
         }
     }
 
-    pub fn complete(&mut self) -> SubmissionResult<()> {
-        use SubmissionError::*;
+    pub fn complete(&mut self) -> SubmissionOpResult<()> {
+        use SubmissionOpError::*;
         use SubmissionStatus::*;
 
         match self.status {
