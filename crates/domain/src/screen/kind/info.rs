@@ -1,6 +1,6 @@
 use crate::{
     AcceptsConditionError, AcceptsConditionResult, Answer, CheckAnswerResult, Condition,
-    Screenable, ValidateAnswerResult,
+    Screenable, ValidateAnswerError, ValidateAnswerResult,
 };
 
 use serde::{Deserialize, Serialize};
@@ -11,12 +11,6 @@ pub struct InfoScreen {
     pub description: Option<String>,
 }
 
-impl InfoScreen {
-    pub fn required(&self) -> bool {
-        return false;
-    }
-}
-
 impl Screenable for InfoScreen {
     fn accepts(&self, _condition: &Condition) -> AcceptsConditionResult<()> {
         use AcceptsConditionError::*;
@@ -24,8 +18,14 @@ impl Screenable for InfoScreen {
         Err(InfoScreenConditionNotAllowed)
     }
 
-    fn validate(&self, _answer: &Answer) -> ValidateAnswerResult<()> {
-        Ok(())
+    fn validate(&self, answer: &Answer) -> ValidateAnswerResult<()> {
+        use Answer::*;
+        use ValidateAnswerError::*;
+
+        match answer {
+            Empty => Ok(()),
+            _ => Err(IncompatibleAnswerType),
+        }
     }
 
     fn check(&self, _answer: &Answer) -> CheckAnswerResult<()> {

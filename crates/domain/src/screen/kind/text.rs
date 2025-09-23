@@ -1,6 +1,6 @@
 use crate::{
-    AcceptsConditionError, AcceptsConditionResult, Answer, CheckAnswerResult, Condition,
-    Screenable, ValidateAnswerResult,
+    AcceptsConditionError, AcceptsConditionResult, Answer, AnswerValue, CheckAnswerError,
+    CheckAnswerResult, Condition, Screenable, ValidateAnswerError, ValidateAnswerResult,
 };
 
 use serde::{Deserialize, Serialize};
@@ -31,11 +31,45 @@ impl Screenable for TextScreen {
         }
     }
 
-    fn validate(&self, _answer: &Answer) -> ValidateAnswerResult<()> {
-        Ok(())
+    fn validate(&self, answer: &Answer) -> ValidateAnswerResult<()> {
+        use Answer::*;
+        use AnswerValue::*;
+        use ValidateAnswerError::*;
+
+        match answer {
+            Value(Text(_)) => Ok(()),
+            Empty => Ok(()),
+            _ => Err(IncompatibleAnswerType),
+        }
     }
 
-    fn check(&self, _answer: &Answer) -> CheckAnswerResult<()> {
-        Ok(())
+    fn check(&self, answer: &Answer) -> CheckAnswerResult<()> {
+        use Answer::*;
+        use AnswerValue::*;
+        use CheckAnswerError::*;
+
+        match answer {
+            Empty if self.required => Err(Required),
+
+            Value(Text(s)) => {
+                let got = s.chars().count() as u32;
+
+                if let Some(min) = self.min_length {
+                    if got < min {
+                        return Err(TextTooShort { min, got });
+                    }
+                }
+
+                if let Some(max) = self.max_length {
+                    if got > max {
+                        return Err(TextTooLong { max, got });
+                    }
+                }
+
+                Ok(())
+            }
+
+            _ => Ok(()),
+        }
     }
 }

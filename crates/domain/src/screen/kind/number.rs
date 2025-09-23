@@ -1,6 +1,6 @@
 use crate::{
-    AcceptsConditionError, AcceptsConditionResult, Answer, CheckAnswerResult, Condition,
-    Screenable, ValidateAnswerResult,
+    AcceptsConditionError, AcceptsConditionResult, Answer, AnswerValue, CheckAnswerError,
+    CheckAnswerResult, Condition, Screenable, ValidateAnswerError, ValidateAnswerResult,
 };
 
 use serde::{Deserialize, Serialize};
@@ -15,12 +15,6 @@ pub struct NumberScreen {
     pub required: bool,
 }
 
-impl NumberScreen {
-    pub fn required(&self) -> bool {
-        return self.required;
-    }
-}
-
 impl Screenable for NumberScreen {
     fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()> {
         use AcceptsConditionError::*;
@@ -31,11 +25,43 @@ impl Screenable for NumberScreen {
         }
     }
 
-    fn validate(&self, _answer: &Answer) -> ValidateAnswerResult<()> {
-        Ok(())
+    fn validate(&self, answer: &Answer) -> ValidateAnswerResult<()> {
+        use Answer::*;
+        use AnswerValue::*;
+        use ValidateAnswerError::*;
+
+        match answer {
+            Value(Number(_)) => Ok(()),
+            Empty => Ok(()),
+            _ => Err(IncompatibleAnswerType),
+        }
     }
 
-    fn check(&self, _answer: &Answer) -> CheckAnswerResult<()> {
-        Ok(())
+    fn check(&self, answer: &Answer) -> CheckAnswerResult<()> {
+        use Answer::*;
+        use AnswerValue::*;
+        use CheckAnswerError::*;
+
+        match answer {
+            Empty if self.required => Err(Required),
+
+            Value(Number(got)) => {
+                if let Some(min) = self.min {
+                    if *got < min {
+                        return Err(NumberTooSmall { min, got: *got });
+                    }
+                }
+
+                if let Some(max) = self.max {
+                    if *got > max {
+                        return Err(NumberTooLarge { max, got: *got });
+                    }
+                }
+
+                Ok(())
+            }
+
+            _ => Ok(()),
+        }
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
-    AcceptsConditionError, AcceptsConditionResult, Answer, CheckAnswerResult, Condition,
-    Screenable, ValidateAnswerResult,
+    AcceptsConditionError, AcceptsConditionResult, Answer, AnswerValue, CheckAnswerError,
+    CheckAnswerResult, Condition, Screenable, ValidateAnswerError, ValidateAnswerResult,
 };
 
 use serde::{Deserialize, Serialize};
@@ -14,12 +14,6 @@ pub struct BooleanScreen {
     pub required: bool,
 }
 
-impl BooleanScreen {
-    pub fn required(&self) -> bool {
-        return self.required;
-    }
-}
-
 impl Screenable for BooleanScreen {
     fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()> {
         use AcceptsConditionError::*;
@@ -30,11 +24,25 @@ impl Screenable for BooleanScreen {
         }
     }
 
-    fn validate(&self, _answer: &Answer) -> ValidateAnswerResult<()> {
-        Ok(())
+    fn validate(&self, answer: &Answer) -> ValidateAnswerResult<()> {
+        use Answer::*;
+        use AnswerValue::*;
+        use ValidateAnswerError::*;
+
+        match answer {
+            Value(Boolean(_)) => Ok(()),
+            Empty => Ok(()),
+            _ => Err(IncompatibleAnswerType),
+        }
     }
 
-    fn check(&self, _answer: &Answer) -> CheckAnswerResult<()> {
-        Ok(())
+    fn check(&self, answer: &Answer) -> CheckAnswerResult<()> {
+        use Answer::*;
+        use CheckAnswerError::*;
+
+        match answer {
+            Empty if self.required => Err(Required),
+            _ => Ok(()),
+        }
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
-    AcceptsConditionError, AcceptsConditionResult, Answer, CheckAnswerResult, Condition,
-    Screenable, ValidateAnswerResult,
+    AcceptsConditionError, AcceptsConditionResult, Answer, AnswerValue, CheckAnswerError,
+    CheckAnswerResult, Condition, Screenable, ValidateAnswerError, ValidateAnswerResult,
 };
 
 use chrono::{DateTime, Utc};
@@ -15,12 +15,6 @@ pub struct DateScreen {
     pub required: bool,
 }
 
-impl DateScreen {
-    pub fn required(&self) -> bool {
-        return self.required;
-    }
-}
-
 impl Screenable for DateScreen {
     fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()> {
         use AcceptsConditionError::*;
@@ -31,11 +25,49 @@ impl Screenable for DateScreen {
         }
     }
 
-    fn validate(&self, _answer: &Answer) -> ValidateAnswerResult<()> {
-        Ok(())
+    fn validate(&self, answer: &Answer) -> ValidateAnswerResult<()> {
+        use Answer::*;
+        use AnswerValue::*;
+        use ValidateAnswerError::*;
+
+        match answer {
+            Value(Date(_)) => Ok(()),
+            Empty => Ok(()),
+            _ => Err(IncompatibleAnswerType),
+        }
     }
 
-    fn check(&self, _answer: &Answer) -> CheckAnswerResult<()> {
-        Ok(())
+    fn check(&self, answer: &Answer) -> CheckAnswerResult<()> {
+        use Answer::*;
+        use AnswerValue::*;
+        use CheckAnswerError::*;
+
+        match answer {
+            Empty if self.required => Err(Required),
+
+            Value(Date(got)) => {
+                if let Some(min) = self.min_date {
+                    if got < &min {
+                        return Err(DateTooEarly {
+                            min,
+                            got: got.clone(),
+                        });
+                    }
+                }
+
+                if let Some(max) = self.max_date {
+                    if got > &max {
+                        return Err(DateTooLate {
+                            max,
+                            got: got.clone(),
+                        });
+                    }
+                }
+
+                Ok(())
+            }
+
+            _ => Ok(()),
+        }
     }
 }
