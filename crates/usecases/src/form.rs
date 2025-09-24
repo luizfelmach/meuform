@@ -1,4 +1,5 @@
-use anyhow::Result;
+use crate::{Paging, UseCaseResult};
+
 use domain::{CustomerId, FlowId, Form, FormId};
 use std::sync::Arc;
 
@@ -17,42 +18,49 @@ pub trait CreateForm: Send + Sync {
         slug: &String,
         customer_id: &CustomerId,
         flow_id: &FlowId,
-    ) -> Result<Form>;
+    ) -> UseCaseResult<Form>;
 }
 
 #[async_trait::async_trait]
 pub trait GetForm: Send + Sync {
-    async fn execute(&self, id: &FormId, customer_id: &CustomerId) -> Result<Form>;
+    async fn execute(&self, id: &FormId, customer_id: &CustomerId) -> UseCaseResult<Form>;
 }
 
 #[async_trait::async_trait]
 pub trait UpdateForm: Send + Sync {
-    async fn execute(&self, data: UpdateFormInput) -> Result<Form>;
+    async fn execute(
+        &self,
+        id: &FormId,
+        customer_id: &CustomerId,
+        data: UpdateFormInput,
+    ) -> UseCaseResult<Form>;
 }
 
 #[async_trait::async_trait]
 pub trait DeleteForm: Send + Sync {
-    async fn execute(&self, id: &FormId, customer_id: &CustomerId) -> Result<()>;
+    async fn execute(&self, id: &FormId, customer_id: &CustomerId) -> UseCaseResult<()>;
 }
 
 #[async_trait::async_trait]
 pub trait ListForms: Send + Sync {
     async fn execute(
         &self,
-        customer_id: CustomerId,
-        limit: Option<usize>,
-        offset: Option<usize>,
-    ) -> Result<Vec<Form>>;
+        customer_id: &CustomerId,
+        paging: Option<Paging>,
+    ) -> UseCaseResult<Vec<Form>>;
 }
 
 #[async_trait::async_trait]
 pub trait UpdateFormFlow: Send + Sync {
-    async fn execute(&self, id: FormId, customer_id: CustomerId, flow_id: &FlowId) -> Result<Form>;
+    async fn execute(
+        &self,
+        id: &FormId,
+        customer_id: &CustomerId,
+        flow_id: &FlowId,
+    ) -> UseCaseResult<Form>;
 }
 
 pub struct UpdateFormInput {
-    pub id: FormId,
-    pub customer_id: CustomerId,
     pub slug: Option<String>,
     pub name: Option<String>,
 }

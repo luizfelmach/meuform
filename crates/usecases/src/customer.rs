@@ -1,6 +1,7 @@
-use anyhow::Result;
-use domain::{CustomerId, CustomerWithoutPassword};
+use domain::{Customer, CustomerId};
 use std::sync::Arc;
+
+use crate::UseCaseResult;
 
 pub type DynAuthCustomer = Arc<dyn AuthCustomer>;
 pub type DynCreateCustomer = Arc<dyn CreateCustomer>;
@@ -13,7 +14,7 @@ pub type DynAuthenticatedCustomer = Arc<dyn AuthenticatedCustomer>;
 
 #[async_trait::async_trait]
 pub trait AuthCustomer: Send + Sync {
-    async fn execute(&self, email: &String, password: &String) -> Result<String>;
+    async fn execute(&self, email: &String, password: &String) -> UseCaseResult<String>;
 }
 
 #[async_trait::async_trait]
@@ -23,41 +24,40 @@ pub trait CreateCustomer: Send + Sync {
         name: &String,
         email: &String,
         password: &String,
-    ) -> Result<CustomerWithoutPassword>;
+    ) -> UseCaseResult<Customer>;
 }
 
 #[async_trait::async_trait]
 pub trait GetCustomer: Send + Sync {
-    async fn execute(&self, id: &CustomerId) -> Result<CustomerWithoutPassword>;
+    async fn execute(&self, id: &CustomerId) -> UseCaseResult<Customer>;
 }
 
 #[async_trait::async_trait]
 pub trait UpdateCustomer: Send + Sync {
-    async fn execute(&self, data: UpdateCustomerInput) -> Result<CustomerWithoutPassword>;
+    async fn execute(&self, id: &CustomerId, data: UpdateCustomerInput) -> UseCaseResult<Customer>;
 }
 
 #[async_trait::async_trait]
 pub trait DeleteCustomer: Send + Sync {
-    async fn execute(&self, id: &CustomerId) -> Result<()>;
+    async fn execute(&self, id: &CustomerId) -> UseCaseResult<()>;
 }
 
 #[async_trait::async_trait]
 pub trait ForgotPasswordCustomer: Send + Sync {
-    async fn execute(&self, id: &CustomerId) -> Result<()>;
+    async fn execute(&self, id: &CustomerId) -> UseCaseResult<()>;
 }
 
 #[async_trait::async_trait]
 pub trait UpdatePasswordCustomer: Send + Sync {
-    async fn execute(&self, token: &String, password: &String) -> Result<CustomerWithoutPassword>;
+    async fn execute(&self, token: &String, password: &String) -> UseCaseResult<Customer>;
 }
 
 #[async_trait::async_trait]
 pub trait AuthenticatedCustomer: Send + Sync {
-    async fn execute(&self, token: &String) -> Result<CustomerId>;
+    async fn execute(&self, token: &String) -> UseCaseResult<CustomerId>;
 }
 
 pub struct UpdateCustomerInput {
-    pub id: CustomerId,
     pub name: Option<String>,
     pub email: Option<String>,
 }
