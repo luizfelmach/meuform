@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct Form {
     pub id: FormId,
     pub customer_id: CustomerId,
-    pub flow_id: FlowId,
+    pub flow_id: Option<FlowId>,
     pub slug: String,
     pub name: String,
     pub created_at: DateTime<Utc>,
@@ -15,18 +15,12 @@ pub struct Form {
 }
 
 impl Form {
-    pub fn new(
-        id: String,
-        customer_id: CustomerId,
-        flow_id: FlowId,
-        slug: String,
-        name: String,
-    ) -> Self {
+    pub fn new(id: String, customer_id: CustomerId, slug: String, name: String) -> Self {
         let now = Utc::now();
         Self {
             id,
             customer_id,
-            flow_id,
+            flow_id: None,
             slug,
             name,
             created_at: now,
@@ -49,7 +43,7 @@ impl Form {
     }
 
     pub fn set_flow_id(&mut self, flow_id: FlowId) {
-        self.flow_id = flow_id;
+        self.flow_id = Some(flow_id);
         self.touch();
     }
 }

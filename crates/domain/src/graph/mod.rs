@@ -3,14 +3,18 @@ use crate::{Condition, NodeId, Screen};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub type Nodes = HashMap<NodeId, Screen>;
-pub type Edges = HashMap<NodeId, Vec<Edge>>;
+pub type Nodes = HashMap<NodeId, Node>;
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Node {
+    pub screen: Screen,
+    pub edges: Vec<Edge>,
+}
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Graph {
     pub nodes: Nodes,
-    pub edges: Edges,
-    pub start: NodeId,
+    pub start: Option<NodeId>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -26,11 +30,10 @@ pub enum Edge {
 }
 
 impl Graph {
-    pub fn new(nodes: Nodes, edges: Edges, start: NodeId) -> Self {
+    pub fn new() -> Self {
         Self {
-            nodes,
-            edges,
-            start,
+            nodes: HashMap::new(),
+            start: None,
         }
     }
 }
