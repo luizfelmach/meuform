@@ -1,4 +1,4 @@
-use crate::{CustomerId, FlowId, FormId};
+use crate::{CustomerId, FormId, GraphId};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct Form {
     pub id: FormId,
     pub customer_id: CustomerId,
-    pub flow_id: Option<FlowId>,
+    pub graph_id: GraphId,
     pub slug: String,
     pub name: String,
     pub created_at: DateTime<Utc>,
@@ -15,12 +15,18 @@ pub struct Form {
 }
 
 impl Form {
-    pub fn new(id: String, customer_id: CustomerId, slug: String, name: String) -> Self {
+    pub fn new(
+        id: String,
+        customer_id: CustomerId,
+        graph_id: GraphId,
+        slug: String,
+        name: String,
+    ) -> Self {
         let now = Utc::now();
         Self {
             id,
             customer_id,
-            flow_id: None,
+            graph_id,
             slug,
             name,
             created_at: now,
@@ -42,8 +48,8 @@ impl Form {
         self.touch();
     }
 
-    pub fn set_flow_id(&mut self, flow_id: FlowId) {
-        self.flow_id = Some(flow_id);
+    pub fn set_graph_id(&mut self, graph_id: GraphId) {
+        self.graph_id = graph_id;
         self.touch();
     }
 }

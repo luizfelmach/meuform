@@ -1,5 +1,5 @@
 use crate::{
-    Answer, FlowId, FormId, NodeId, SubmissionId, SubmissionOpError, SubmissionOpResult,
+    Answer, FormId, GraphId, NodeId, SubmissionId, SubmissionOpError, SubmissionOpResult,
     SubmissionStatus,
 };
 
@@ -11,7 +11,7 @@ use std::collections::HashMap;
 pub struct Submission {
     pub id: SubmissionId,
     pub form_id: FormId,
-    pub flow_id: FlowId,
+    pub graph_id: GraphId,
     pub status: SubmissionStatus,
     pub traverse: Vec<NodeId>,
     pub answers: HashMap<NodeId, Answer>,
@@ -20,12 +20,12 @@ pub struct Submission {
 }
 
 impl Submission {
-    pub fn new(id: SubmissionId, form_id: FormId, flow_id: FlowId, node: NodeId) -> Self {
+    pub fn new(id: SubmissionId, form_id: FormId, graph_id: GraphId, node: NodeId) -> Self {
         let now = Utc::now();
         Self {
             id,
             form_id,
-            flow_id,
+            graph_id,
             status: SubmissionStatus::InProgress(node),
             traverse: vec![node],
             answers: HashMap::new(),
