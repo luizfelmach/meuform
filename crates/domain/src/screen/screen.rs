@@ -25,8 +25,8 @@ pub enum Screen {
     Info(InfoScreen),
 }
 
-impl Screenable for Screen {
-    fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()> {
+impl Screen {
+    pub fn accepts(&self, condition: &Condition) -> AcceptsConditionResult<()> {
         use Screen::*;
 
         match self {
@@ -41,7 +41,7 @@ impl Screenable for Screen {
         }
     }
 
-    fn validate(&self, answer: &Answer) -> ValidateAnswerResult<()> {
+    pub fn validate(&self, answer: &Answer) -> ValidateAnswerResult<()> {
         use Screen::*;
 
         match self {
@@ -56,7 +56,7 @@ impl Screenable for Screen {
         }
     }
 
-    fn check(&self, answer: &Answer) -> CheckAnswerResult<()> {
+    pub fn check(&self, answer: &Answer) -> CheckAnswerResult<()> {
         use Screen::*;
 
         match self {

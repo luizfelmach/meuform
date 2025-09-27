@@ -21,8 +21,8 @@ pub enum Condition {
     Boolean(BooleanCondition),
 }
 
-impl Conditionable for Condition {
-    fn evaluate(&self, answer: &Answer) -> EvaluateAnswerResult<bool> {
+impl Condition {
+    pub fn evaluate(&self, answer: &Answer) -> EvaluateAnswerResult<bool> {
         use Condition::*;
 
         match self {

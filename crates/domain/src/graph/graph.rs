@@ -1,4 +1,4 @@
-use crate::{Condition, GraphError, GraphId, GraphResult, NodeId, Screen, Screenable};
+use crate::{Condition, GraphError, GraphId, GraphResult, NodeId, Screen};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -86,10 +86,12 @@ impl Graph {
     pub fn delete_edge(&mut self, from: NodeId, to: NodeId) -> GraphResult<()> {
         use GraphError::*;
 
-        let node = self.nodes.get_mut(&from).ok_or(FromNodeNotFound(from))?;
-        let removed = node.detach_edge(to);
+        let node = self
+            .nodes
+            .get_mut(&from)
+            .ok_or_else(|| FromNodeNotFound(from))?;
 
-        if !removed {
+        if !node.detach_edge(to) {
             return Err(EdgeNotFound(from, to));
         }
 
@@ -99,10 +101,7 @@ impl Graph {
     pub fn delete_node(&mut self, node: NodeId) -> GraphResult<()> {
         use GraphError::*;
 
-        if self.nodes.remove(&node).is_none() {
-            return Err(NodeNotFound(node));
-        }
-
+        self.nodes.remove(&node).ok_or_else(|| NodeNotFound(node))?;
         for n in self.nodes.values_mut() {
             n.detach_edge(node);
         }
