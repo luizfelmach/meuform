@@ -1,6 +1,6 @@
 use crate::{Paging, UseCaseResult};
 
-use domain::{CustomerId, FlowId, Form, FormId};
+use domain::{CustomerId, Form, FormId, GraphId};
 use std::sync::Arc;
 
 pub type DynCreateForm = Arc<dyn CreateForm>;
@@ -8,7 +8,6 @@ pub type DynGetForm = Arc<dyn GetForm>;
 pub type DynUpdateForm = Arc<dyn UpdateForm>;
 pub type DynDeleteForm = Arc<dyn DeleteForm>;
 pub type DynListForms = Arc<dyn ListForms>;
-pub type DynUpdateFormFlow = Arc<dyn UpdateFormFlow>;
 
 #[async_trait::async_trait]
 pub trait CreateForm: Send + Sync {
@@ -17,7 +16,7 @@ pub trait CreateForm: Send + Sync {
         name: &String,
         slug: &String,
         customer_id: &CustomerId,
-        flow_id: &FlowId,
+        flow_id: &GraphId,
     ) -> UseCaseResult<Form>;
 }
 
@@ -48,16 +47,6 @@ pub trait ListForms: Send + Sync {
         customer_id: &CustomerId,
         paging: Option<Paging>,
     ) -> UseCaseResult<Vec<Form>>;
-}
-
-#[async_trait::async_trait]
-pub trait UpdateFormFlow: Send + Sync {
-    async fn execute(
-        &self,
-        id: &FormId,
-        customer_id: &CustomerId,
-        flow_id: &FlowId,
-    ) -> UseCaseResult<Form>;
 }
 
 pub struct UpdateFormInput {
