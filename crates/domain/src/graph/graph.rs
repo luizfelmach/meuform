@@ -12,20 +12,20 @@ pub struct Graph {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Node {
     pub screen: Screen,
-    pub edges: HashMap<NodeId, EdgeCondition>,
+    pub edges: HashMap<NodeId, Edge>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub enum EdgeCondition {
+pub enum Edge {
     Conditional { to: NodeId, condition: Condition },
     None { to: NodeId },
 }
 
-impl EdgeCondition {
+impl Edge {
     fn to(&self) -> NodeId {
         match self {
-            EdgeCondition::Conditional { to, .. } => *to,
-            EdgeCondition::None { to } => *to,
+            Edge::Conditional { to, .. } => *to,
+            Edge::None { to } => *to,
         }
     }
 }
@@ -55,7 +55,7 @@ impl Graph {
         Ok(())
     }
 
-    pub fn upsert_edge(&mut self, from: NodeId, edge: EdgeCondition) -> GraphResult<()> {
+    pub fn upsert_edge(&mut self, from: NodeId, edge: Edge) -> GraphResult<()> {
         use GraphError::*;
 
         let to = edge.to();
@@ -74,7 +74,7 @@ impl Graph {
 
         let node = self.nodes.get_mut(&from).unwrap();
 
-        if let EdgeCondition::Conditional { condition, .. } = &edge {
+        if let Edge::Conditional { condition, .. } = &edge {
             node.screen.accepts(condition).map_err(InvalidCondition)?;
         }
 
