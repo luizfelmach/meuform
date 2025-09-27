@@ -7,25 +7,27 @@ use std::collections::HashMap;
 pub struct Graph {
     pub id: GraphId,
     pub nodes: HashMap<NodeId, Node>,
-    pub answered: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Node {
     pub screen: Screen,
-    pub edges: Vec<Edge>,
+    pub edges: HashMap<NodeId, EdgeCondition>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub enum Edge {
-    Unconditional {
-        to: NodeId,
-    },
-    Conditional {
-        to: NodeId,
-        r#where: NodeId,
-        condition: Condition,
-    },
+pub enum EdgeCondition {
+    Conditional { to: NodeId, condition: Condition },
+    None { to: NodeId },
+}
+
+impl EdgeCondition {
+    fn to(&self) -> NodeId {
+        match self {
+            EdgeCondition::Conditional { to, .. } => *to,
+            EdgeCondition::None { to } => *to,
+        }
+    }
 }
 
 impl Graph {
@@ -33,7 +35,6 @@ impl Graph {
         Self {
             id,
             nodes: HashMap::new(),
-            answered: false,
         }
     }
 
@@ -41,16 +42,7 @@ impl Graph {
         Self {
             id,
             nodes: self.nodes.clone(),
-            answered: false,
         }
-    }
-
-    pub fn set_answered(&mut self) {
-        self.answered = true
-    }
-
-    pub fn has_answered(&self) -> bool {
-        return self.answered;
     }
 }
 
@@ -63,7 +55,7 @@ impl Graph {
         Ok(())
     }
 
-    pub fn upsert_edge(&mut self, from: NodeId, edge: Edge) -> GraphResult<()> {
+    pub fn upsert_edge(&mut self, from: NodeId, edge: EdgeCondition) -> GraphResult<()> {
         use GraphError::*;
 
         let to = edge.to();
@@ -75,21 +67,18 @@ impl Graph {
         if !self.nodes.contains_key(&from) {
             return Err(FromNodeNotFound(from));
         }
+
         if !self.nodes.contains_key(&to) {
             return Err(ToNodeNotFound(to));
         }
 
         let node = self.nodes.get_mut(&from).unwrap();
 
-        if let Edge::Conditional { condition, .. } = &edge {
+        if let EdgeCondition::Conditional { condition, .. } = &edge {
             node.screen.accepts(condition).map_err(InvalidCondition)?;
         }
 
-        if let Some(existing) = node.edges.iter_mut().find(|e| e.to() == to) {
-            *existing = edge;
-        } else {
-            node.edges.push(edge);
-        }
+        node.edges.insert(to, edge);
 
         Ok(())
     }
@@ -98,7 +87,7 @@ impl Graph {
         use GraphError::*;
 
         let node = self.nodes.get_mut(&from).ok_or(FromNodeNotFound(from))?;
-        let removed = node.remove_edge_to(to);
+        let removed = node.detach_edge(to);
 
         if !removed {
             return Err(EdgeNotFound(from, to));
@@ -107,27 +96,18 @@ impl Graph {
         Ok(())
     }
 
-    pub fn delete_node(&mut self, id: NodeId) -> GraphResult<()> {
+    pub fn delete_node(&mut self, node: NodeId) -> GraphResult<()> {
         use GraphError::*;
 
-        if self.nodes.remove(&id).is_none() {
-            return Err(NodeNotFound(id));
+        if self.nodes.remove(&node).is_none() {
+            return Err(NodeNotFound(node));
         }
 
-        for node in self.nodes.values_mut() {
-            node.remove_edge_to(id);
+        for n in self.nodes.values_mut() {
+            n.detach_edge(node);
         }
 
         Ok(())
-    }
-}
-
-impl Edge {
-    fn to(&self) -> NodeId {
-        match self {
-            Edge::Unconditional { to } => *to,
-            Edge::Conditional { to, .. } => *to,
-        }
     }
 }
 
@@ -135,13 +115,11 @@ impl Node {
     fn new(screen: Screen) -> Self {
         Self {
             screen,
-            edges: Vec::new(),
+            edges: HashMap::new(),
         }
     }
 
-    fn remove_edge_to(&mut self, target: NodeId) -> bool {
-        let before = self.edges.len();
-        self.edges.retain(|e| e.to() != target);
-        self.edges.len() != before
+    fn detach_edge(&mut self, target: NodeId) -> bool {
+        self.edges.remove(&target).is_some()
     }
 }
