@@ -1,13 +1,13 @@
 use crate::{Controller, HttpError, HttpRequest, HttpResponse};
 use crate::{SignInBody, SignInResponse, SignUpBody};
-use usecases::{DynAuthCustomer, DynCreateCustomer};
+use usecases::{DynAuthenticateCustomer, DynCustomerRetrieveProfile};
 
 pub struct SignInController {
-    pub auth: DynAuthCustomer,
+    pub auth: DynAuthenticateCustomer,
 }
 pub struct SignUpController {
-    pub auth: DynAuthCustomer,
-    pub create: DynCreateCustomer,
+    pub auth: DynAuthenticateCustomer,
+    pub create: DynCustomerRetrieveProfile,
 }
 
 #[async_trait::async_trait]

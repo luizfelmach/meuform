@@ -2,8 +2,8 @@ use anyhow::Result;
 use domain::{Customer, CustomerId, CustomerWithoutPassword};
 use protocols::{DynCustomerRepository, DynHasher, DynTokenizer};
 use usecases::{
-    AuthCustomer, AuthenticatedCustomer, CreateCustomer, DeleteCustomer, ForgotPasswordCustomer,
-    GetCustomer, UpdateCustomer, UpdateCustomerInput, UpdatePasswordCustomer,
+    AuthenticateCustomer, CustomerValidateToken, CustomerRetrieveProfile, CustomerDeleteAccount, CustomerRequestPasswordReset,
+    CustomerRetrieveProfile, CustomerUpdateProfile, UpdateCustomerInput, CustomerUpdatePassword,
 };
 
 pub struct AuthCustomerImpl {
@@ -20,7 +20,7 @@ pub struct UpdatePasswordCustomerImpl;
 pub struct AuthenticatedCustomerImpl;
 
 #[async_trait::async_trait]
-impl AuthCustomer for AuthCustomerImpl {
+impl AuthenticateCustomer for AuthCustomerImpl {
     async fn execute(&self, email: &String, _password: &String) -> Result<String> {
         let customer = self.customer.find_by_email(email).await?;
 
@@ -29,7 +29,7 @@ impl AuthCustomer for AuthCustomerImpl {
 }
 
 #[async_trait::async_trait]
-impl CreateCustomer for CreateCustomerImpl {
+impl CustomerRetrieveProfile for CreateCustomerImpl {
     async fn execute(
         &self,
         name: &String,
@@ -47,7 +47,7 @@ impl CreateCustomer for CreateCustomerImpl {
 }
 
 #[async_trait::async_trait]
-impl GetCustomer for GetCustomerImpl {
+impl CustomerRetrieveProfile for GetCustomerImpl {
     async fn execute(&self, id: &CustomerId) -> Result<CustomerWithoutPassword> {
         let customer = Customer::create(
             id.clone(),
@@ -61,7 +61,7 @@ impl GetCustomer for GetCustomerImpl {
 }
 
 #[async_trait::async_trait]
-impl UpdateCustomer for UpdateCustomerImpl {
+impl CustomerUpdateProfile for UpdateCustomerImpl {
     async fn execute(&self, data: UpdateCustomerInput) -> Result<CustomerWithoutPassword> {
         let customer = Customer::create(
             data.id.clone(),
@@ -74,21 +74,21 @@ impl UpdateCustomer for UpdateCustomerImpl {
 }
 
 #[async_trait::async_trait]
-impl DeleteCustomer for DeleteCustomerImpl {
+impl CustomerDeleteAccount for DeleteCustomerImpl {
     async fn execute(&self, _id: &CustomerId) -> Result<()> {
         Ok(())
     }
 }
 
 #[async_trait::async_trait]
-impl ForgotPasswordCustomer for ForgotPasswordCustomerImpl {
+impl CustomerRequestPasswordReset for ForgotPasswordCustomerImpl {
     async fn execute(&self, _id: &CustomerId) -> Result<()> {
         Ok(())
     }
 }
 
 #[async_trait::async_trait]
-impl UpdatePasswordCustomer for UpdatePasswordCustomerImpl {
+impl CustomerUpdatePassword for UpdatePasswordCustomerImpl {
     async fn execute(
         &self,
         _token: &String,
@@ -105,7 +105,7 @@ impl UpdatePasswordCustomer for UpdatePasswordCustomerImpl {
 }
 
 #[async_trait::async_trait]
-impl AuthenticatedCustomer for AuthenticatedCustomerImpl {
+impl CustomerValidateToken for AuthenticatedCustomerImpl {
     async fn execute(&self, _token: &String) -> Result<CustomerId> {
         Ok("fake_id".into())
     }
